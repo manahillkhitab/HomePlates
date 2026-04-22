@@ -103,7 +103,9 @@ class ConversationsScreen extends ConsumerWidget {
                     child: const Icon(Icons.person_rounded, color: AppTheme.primaryGold),
                   ),
                   title: Text(
-                    'User ID: ${otherId.substring(0, 8)}...', // Ideally fetch name
+                    otherId.length > 8
+                        ? 'User ID: ${otherId.substring(0, 8)}...'
+                        : 'User ID: $otherId', // Ideally fetch name
                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
