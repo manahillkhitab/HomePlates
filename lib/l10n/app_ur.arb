@@ -1,0 +1,15 @@
+{
+  "@@locale": "ur",
+  "appTitle": "ہوم پلیٹس",
+  "welcomeBack": "خوش آمدید، {name}",
+  "availableToday": "آج دستیاب ہے",
+  "featuredToday": "آج کی خاص ڈشز",
+  "myOrders": "میرے آرڈرز",
+  "wallet": "والیٹ",
+  "settings": "ترتیبات",
+  "logout": "لاگ آؤٹ",
+  "payout": "ادائیگی",
+  "totalPrice": "کل قیمت",
+  "addToCart": "ٹوکری میں ڈالیں",
+  "checkout": "چیک آؤٹ"
+}

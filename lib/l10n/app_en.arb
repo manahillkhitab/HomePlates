@@ -1,0 +1,25 @@
+{
+  "@@locale": "en",
+  "appTitle": "HomePlates",
+  "@appTitle": {
+    "description": "The name of the application"
+  },
+  "welcomeBack": "Welcome back, {name}",
+  "@welcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "availableToday": "Available Today",
+  "featuredToday": "Featured Today",
+  "myOrders": "My Orders",
+  "wallet": "Wallet",
+  "settings": "Settings",
+  "logout": "Logout",
+  "payout": "Payout",
+  "totalPrice": "Total Price",
+  "addToCart": "Add to Cart",
+  "checkout": "Checkout"
+}
