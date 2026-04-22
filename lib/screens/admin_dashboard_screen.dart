@@ -85,7 +85,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         final userBox = Hive.box<UserModel>(AppConstants.userBox);
         final orderBox = Hive.box<OrderModel>(AppConstants.orderBox);
         
-        users = userBox.values.map((u) => {
+        users = userBox.values.map((u) => <String, dynamic>{
           'id': u.id,
           'role': u.role.name,
           'status': u.status.name,
@@ -94,7 +94,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           'kitchen_name': u.kitchenName,
         }).toList();
 
-        orders = orderBox.values.map((o) => {
+        orders = orderBox.values.map((o) => <String, dynamic>{
           'id': o.id,
           'total_price': o.totalPrice,
           'created_at': o.createdAt.toIso8601String(),
@@ -116,7 +116,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       double totalRev = 0;
       for (var o in orders) {
         final status = o['status']?.toString().toLowerCase() ?? 'pending';
-        final price = (o['total_price'] as num).toDouble();
+        final price = double.tryParse(o['total_price']?.toString() ?? '0') ?? 0.0;
         if (status != 'rejected' && status != 'canceled') {
           totalRev += price;
         }
@@ -126,29 +126,39 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       final List<dynamic> feed = [];
       
       // Add recent orders
-      for (var o in orders.take(5)) {
-        feed.add({
+      int ordersAdded = 0;
+      for (var o in orders) {
+        if (ordersAdded >= 5) break;
+        final parsedTime = DateTime.tryParse(o['created_at']?.toString() ?? '');
+        if (parsedTime == null) continue;
+        feed.add(<String, dynamic>{
           'type': 'order',
           'title': 'New Order: ${o['dish_name']}',
-          'subtitle': 'Rs. ${o['total_price']}',
-          'time': DateTime.parse(o['created_at']),
-          'status': o['status'],
+          'subtitle': 'Rs. ${o['total_price'] ?? 0}',
+          'time': parsedTime,
+          'status': o['status']?.toString() ?? 'pending',
           'icon': Icons.shopping_bag_rounded,
           'color': Colors.orangeAccent,
         });
+        ordersAdded++;
       }
       
       // Add recent signups
-      for (var u in users.take(3)) {
-         feed.add({
+      int usersAdded = 0;
+      for (var u in users) {
+         if (usersAdded >= 3) break;
+         final parsedTime = DateTime.tryParse(u['created_at']?.toString() ?? '');
+         if (parsedTime == null) continue;
+         feed.add(<String, dynamic>{
           'type': 'user',
           'title': 'New User: ${u['name']}',
-          'subtitle': '${u['role'].toString().toUpperCase()} • ${u['status']}',
-          'time': DateTime.parse(u['created_at']),
-          'status': u['status'],
+          'subtitle': '${u['role']?.toString().toUpperCase() ?? ''} • ${u['status']?.toString() ?? 'pending'}',
+          'time': parsedTime,
+          'status': u['status']?.toString() ?? 'pending',
           'icon': Icons.person_add_rounded,
           'color': Colors.blueAccent,
         });
+        usersAdded++;
       }
       
       // Sort feed by time
@@ -173,6 +183,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   Future<void> _runSync() async {
+    if (!mounted) return;
     setState(() => _isSyncing = true);
     await _syncService.syncAll();
     await _fetchDashboardData();
@@ -184,7 +195,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final config = ref.watch(configProvider).value;
-    final platformCommission = 1.0 - (config?.chefCommission ?? 0.8) - (config?.riderCommission ?? 0.1);
+    final platformCommission = (1.0 - (config?.chefCommission ?? 0.8) - (config?.riderCommission ?? 0.1)).clamp(0.0, 1.0);
     final totalPlatformRevenue = _totalRevenue * platformCommission;
 
     return Scaffold(

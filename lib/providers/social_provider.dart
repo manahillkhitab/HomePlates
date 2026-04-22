@@ -115,6 +115,13 @@ class SocialNotifier extends StateNotifier<List<PostModel>> {
     ];
   }
 
+  Future<void> unlikePost(String postId) async {
+    state = [
+      for (final post in state)
+        if (post.id == postId) post.copyWith(likes: (post.likes > 0 ? post.likes - 1 : 0)) else post
+    ];
+  }
+
   List<PostModel> getPostsForChef(String chefId) {
     return state.where((p) => p.chefId == chefId).toList();
   }

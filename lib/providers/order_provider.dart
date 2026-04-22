@@ -61,7 +61,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       final totalPrice = pricePerItem * quantity;
 
       final order = OrderModel(
-        id: const Uuid().v4(),
+        id: 'ORD-${DateTime.now().millisecondsSinceEpoch}-${const Uuid().v4().substring(0, 8)}',
         customerId: customerId,
         chefId: dish.chefId,
         dishId: dish.id,
@@ -93,7 +93,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       return true;
     } catch (e) {
       debugPrint('Error creating order: $e');
-      return false;
+      rethrow;
     }
   }
 
@@ -121,7 +121,8 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       }
 
       final promo = ref.read(appliedPromoProvider);
-      final double deliveryFee = kDefaultDeliveryFee; 
+      final config = ref.read(configProvider).value;
+      final double deliveryFee = config?.deliveryFee ?? kDefaultDeliveryFee; 
       
       double finalTotal = cart.total + deliveryFee;
       if (promo != null) {
@@ -130,15 +131,15 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       }
 
       // Generate ID securely
-      final orderId = const Uuid().v4();
+      final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}-${const Uuid().v4().substring(0, 8)}';
 
       // Fetch Chef Details for Snapshot (Address Locking Logic)
       final chefUser = await ref.read(authProvider.notifier).getUserById(chefId);
       
       // 2. Kitchen Status Check must happen BEFORE charging the customer's wallet
-      if (chefUser?.isKitchenClosed == true) {
-        debugPrint('Error: Kitchen is currently closed');
-        return false;
+      if (chefUser == null || chefUser.isKitchenClosed == true) {
+        debugPrint('Error: Kitchen is currently closed or chef not found');
+        throw Exception('Kitchen is currently closed');
       }
 
       // 3. Handle Wallet Payment
@@ -147,7 +148,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
         final success = await walletNotifier.makePayment(finalTotal, 'ORD-$orderId');
         if (!success) {
           debugPrint('Insufficient wallet balance');
-          return false;
+          throw Exception('Insufficient wallet balance');
         }
       }
 
@@ -199,11 +200,13 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
 
       // IF strictly the first order and referredBy exists, credit the referrer
       final previousOrders = _orderService.getOrdersForCustomer(customer.id);
-      if (previousOrders.length == 1 && customer.referredBy != null && customer.referredBy!.isNotEmpty && customer.referredBy != 'rewarded') {
-         await ref.read(walletProvider(customer.referredBy!).notifier)
+      final freshCustomer = await ref.read(authProvider.notifier).getUserById(customer.id) ?? customer;
+      
+      if (previousOrders.length == 1 && freshCustomer.referredBy != null && freshCustomer.referredBy!.isNotEmpty && freshCustomer.referredBy != 'rewarded') {
+         await ref.read(walletProvider(freshCustomer.referredBy!).notifier)
             .issueRefund(50.0, 'REF-${order.id}'); 
          // Mark as rewarded to prevent duplicate payouts
-         await ref.read(authProvider.notifier).updateProfile(customer.copyWith(referredBy: 'rewarded'));
+         await ref.read(authProvider.notifier).updateProfile(freshCustomer.copyWith(referredBy: 'rewarded'));
       }
 
       // Mark promo as used
@@ -223,7 +226,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
     } catch (e, stack) {
       debugPrint('CRITICAL ORDER FAILURE: $e');
       debugPrint('STACK TRACE: $stack');
-      return false;
+      rethrow;
     }
   }
 
@@ -320,6 +323,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
   Future<String?> claimOrder(OrderModel order, String riderId) async {
     final error = await SyncService().claimOrder(order.id, riderId);
     if (error == null) {
+      await _orderService.updateOrderStatus(order.id, OrderStatus.ready, riderId: riderId);
       // Reload lists concurrently (fixes multiple async loads without await)
       await Future.wait([
         loadAvailableOrders(),
@@ -350,7 +354,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       return true;
     } catch (e) {
       debugPrint('Error unassigning rider: $e');
-      return false;
+      rethrow;
     }
   }
   
@@ -410,17 +414,17 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
 
         // RULE 4: Trigger Earnings if Delivered (Duplicate Handling via ID required in Sync)
         if (newStatus == OrderStatus.delivered) {
-           // Credit Rider (Fixed Delivery Fee)
+           final currentDeliveryFee = config.deliveryFee ?? kDefaultDeliveryFee;
+           // Credit Rider (Dynamic Delivery Fee)
            if (updatedOrder.riderId != null) {
-              const riderEarnings = 50.0; // Standard delivery fee
               await ref.read(walletProvider(updatedOrder.riderId!).notifier)
-                  .addEarning(riderEarnings, updatedOrder.id);
+                  .addEarning(currentDeliveryFee, updatedOrder.id);
            }
 
            // Credit Chef (Total - Delivery Fee)
            // Robust calculation: (PricePerItem * Quantity) 
            // TotalPrice often includes Delivery Fee
-           double chefEarnings = updatedOrder.totalPrice - kDefaultDeliveryFee; 
+           double chefEarnings = updatedOrder.totalPrice - currentDeliveryFee; 
            if (chefEarnings < 0) chefEarnings = 0; // Safety
            
            await ref.read(walletProvider(updatedOrder.chefId).notifier)
@@ -452,10 +456,10 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
          if (newStatus == OrderStatus.pickedUp || newStatus == OrderStatus.ready) {
             // Picked Up: Claiming (move from Available to Active)
             // Ready: Dropping (move from Active to Available)
-            loadRiderActiveOrders(currentUser.id); 
-            if (newStatus == OrderStatus.ready) loadAvailableOrders();
+            await loadRiderActiveOrders(currentUser.id); 
+            if (newStatus == OrderStatus.ready) await loadAvailableOrders();
          } else if (newStatus == OrderStatus.delivered) {
-            loadRiderActiveOrders(currentUser.id); 
+            await loadRiderActiveOrders(currentUser.id); 
          }
       }
       
@@ -465,9 +469,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       return true;
     } catch (e, st) {
       debugPrint('Error updating status: $e\n$st');
-      // We could set state to error, but that might block the UI. 
-      // Better to return false or show snackbar.
-      return false;
+      rethrow;
     }
   }
 
@@ -485,7 +487,7 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
         break;
       case UserRole.rider:
         if (newStatus == OrderStatus.pickedUp && order.status == OrderStatus.ready) {
-             isAuthorized = true;
+             isAuthorized = order.riderId == null || order.riderId == '' || order.riderId == user.id;
         } else {
              isAuthorized = order.riderId == user.id; // Strict ownership loop check
         }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../data/local/models/user_model.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'home_screen.dart';
 import 'role_selection_screen.dart';
 import 'customer_home_screen.dart';
@@ -8,48 +10,78 @@ import 'chef_home_screen.dart';
 import 'rider_home_screen.dart';
 import '../utils/constants.dart';
 import '../utils/app_theme.dart';
-import '../controllers/auth_controller.dart';
-import '../data/local/models/user_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
+import 'status_message_screen.dart';
+import 'onboarding_screen.dart';
+import 'admin_dashboard_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
     _navigateToHome();
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   void _navigateToHome() {
-    Timer(const Duration(seconds: AppConstants.splashDuration), () {
+    _timer = Timer(const Duration(seconds: AppConstants.splashDuration), () {
       if (mounted) {
-        final authController = AuthController();
+        final user = ref.read(authProvider).value;
         
         Widget nextScreen;
         
-        if (authController.isLoggedIn) {
-          // If logged in, go to the respective role home
-          switch (authController.userRole) {
-            case UserRole.customer:
-              nextScreen = const CustomerHomeScreen();
-              break;
-            case UserRole.chef:
-              nextScreen = const ChefHomeScreen();
-              break;
-            case UserRole.rider:
-              nextScreen = const RiderHomeScreen();
-              break;
-            default:
-              nextScreen = const RoleSelectionScreen();
+        if (user != null && user.isLoggedIn) {
+          if (user.status != UserStatus.approved) {
+            nextScreen = StatusMessageScreen(status: user.status);
+          } else {
+            // If logged in and approved, go to the respective role home
+            switch (user.role) {
+              case UserRole.customer:
+                nextScreen = CustomerHomeScreen();
+                break;
+              case UserRole.chef:
+                nextScreen = ChefHomeScreen();
+                break;
+              case UserRole.rider:
+                nextScreen = RiderHomeScreen();
+                break;
+              case UserRole.admin:
+                nextScreen = AdminDashboardScreen();
+                break;
+              default:
+                nextScreen = const RoleSelectionScreen();
+            }
           }
         } else {
-          // Otherwise go to role selection
-          nextScreen = const RoleSelectionScreen();
+          // Check if onboarding seen
+          bool hasSeenOnboarding = false;
+          try {
+            final settingsBox = Hive.box(AppConstants.settingsBox);
+            hasSeenOnboarding = settingsBox.get('hasSeenOnboarding', defaultValue: false);
+          } catch (e) {
+            debugPrint('Hive box not open or accessible: $e');
+          }
+          
+          if (!hasSeenOnboarding) {
+            nextScreen = const OnboardingScreen();
+          } else {
+            nextScreen = const RoleSelectionScreen();
+          }
         }
 
         Navigator.of(context).pushReplacement(
@@ -61,50 +93,121 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppTheme.offWhite, 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Your custom transparent logo from assets
-            Image.asset(
-              'assets/images/image.png',
-              width: 120,
-              height: 120,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 28),
-            // App name
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Home',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1F2933), // Warm Charcoal
-                      letterSpacing: -1.5,
-                      height: 1.0,
-                    ),
-                  ),
-                  TextSpan(
-                    text: 'Plates',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFF4B740), // Muted Saffron
-                      letterSpacing: -1.5,
-                      height: 1.0,
-                    ),
-                  ),
-                ],
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          // Subtle background pattern
+          Positioned.fill(
+            child: Opacity(
+              opacity: isDark ? 0.03 : 0.05,
+              child: GridView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: 150,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 10,
+                ),
+                itemBuilder: (context, index) => const Icon(Icons.restaurant_menu, size: 20),
               ),
             ),
-          ],
-        ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Hero(
+                  tag: 'app_logo',
+                    child: TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 0.8, end: 1.0),
+                      duration: const Duration(milliseconds: 1000),
+                      curve: Curves.elasticOut,
+                      builder: (context, double value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryGold.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.restaurant_menu_rounded,
+                              size: 80,
+                              color: AppTheme.primaryGold,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ),
+                const SizedBox(height: 32),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Home',
+                        style: GoogleFonts.outfit(
+                          fontSize: 56,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                          letterSpacing: -2,
+                          height: 1.0,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Plates',
+                        style: GoogleFonts.outfit(
+                          fontSize: 56,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.primaryGold,
+                          letterSpacing: -2,
+                          height: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGold.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'HOMEMADE JOY',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.primaryGold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Loading indicator at bottom
+          Positioned(
+            bottom: 60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryGold.withValues(alpha: 0.3)),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

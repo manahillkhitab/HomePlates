@@ -19,7 +19,7 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
   @override
   Future<UserModel?> build() async {
     // Listen for auth state changes (crucial for Deep Links)
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+    final sub = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
       final AuthChangeEvent event = data.event;
       final Session? session = data.session;
 
@@ -65,6 +65,8 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
         state = const AsyncValue.data(null);
       }
     });
+
+    ref.onDispose(() => sub.cancel());
 
     return _authService.getCurrentUser();
   }
@@ -155,46 +157,68 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
 
   // Proper Sign In
   Future<void> signIn(String email, String password) async {
-    final res = await Supabase.instance.client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-    
-    if (res.session != null) {
-      final remoteUser = await getUserById(res.user!.id);
-      if (remoteUser != null) {
-        final user = remoteUser.copyWith(isLoggedIn: true, isSynced: true);
-        await _authService.saveUser(user);
-        state = AsyncValue.data(user);
+    try {
+      final res = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      
+      if (res.session != null && res.user != null) {
+        final remoteUser = await getUserById(res.user!.id);
+        if (remoteUser != null) {
+          final user = remoteUser.copyWith(isLoggedIn: true, isSynced: true);
+          await _authService.saveUser(user);
+          state = AsyncValue.data(user);
+        } else {
+          throw Exception('User profile not found in database');
+        }
+      } else {
+        throw Exception('Failed to establish session after sign in');
       }
+    } catch (e) {
+      debugPrint('SignIn Error: $e');
+      rethrow;
     }
   }
 
   // Sign Out
   Future<void> signOut() async {
-    await Supabase.instance.client.auth.signOut();
-    await _authService.clearUser();
-    state = const AsyncValue.data(null);
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (e) {
+      debugPrint('Error signing out on remote: $e');
+    } finally {
+      await _authService.clearUser();
+      state = const AsyncValue.data(null);
+    }
   }
 
   // Verify OTP
   Future<bool> verifyOTP({required String email, required String token, UserRole? role}) async {
-    final res = await Supabase.instance.client.auth.verifyOTP(
-      email: email,
-      token: token,
-      type: OtpType.signup,
-    );
+    try {
+      final res = await Supabase.instance.client.auth.verifyOTP(
+        email: email,
+        token: token,
+        type: OtpType.signup,
+      );
 
-    if (res.session != null) {
-      final remoteUser = await getUserById(res.user!.id);
-      if (remoteUser != null) {
-        final user = remoteUser.copyWith(isLoggedIn: true, isSynced: true);
-        await _authService.saveUser(user);
-        state = AsyncValue.data(user);
-        return true;
+      if (res.session != null && res.user != null) {
+        final remoteUser = await getUserById(res.user!.id);
+        if (remoteUser != null) {
+          final user = remoteUser.copyWith(isLoggedIn: true, isSynced: true);
+          await _authService.saveUser(user);
+          state = AsyncValue.data(user);
+          return true;
+        } else {
+          throw Exception('Verified, but profile not found');
+        }
+      } else {
+        throw Exception('Verification failed or incomplete session');
       }
+    } catch (e) {
+      debugPrint('VerifyOTP Error: $e');
+      rethrow;
     }
-    return false;
   }
 
   // Resend OTP
@@ -233,7 +257,10 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
           .eq('id', currentUser.id);
     } catch (e) {
       debugPrint('Failed to sync active_role to cloud: $e');
-      // Non-blocking error, local state is valid for session
+      // Revert optimism on failure to avoid inconsistency
+      await _authService.saveUser(currentUser);
+      state = AsyncValue.data(currentUser);
+      rethrow;
     }
   }
 
@@ -242,6 +269,9 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
     required String email,
     required UserRole role,
   }) async {
+    if (kReleaseMode) {
+      throw Exception('Security Constraint: Dev bypass strictly disabled in production builds.');
+    }
     final client = Supabase.instance.client;
     
     // Try to fetch existing data from public.users (Signup creates this)
@@ -301,16 +331,22 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
 
     final updatedUser = currentUser.copyWith(isKitchenClosed: !currentUser.isKitchenClosed);
     
-    // Save to local
-    await _authService.saveUser(updatedUser);
-    
-    // Update Supabase
-    await Supabase.instance.client
-        .from('users')
-        .update({'is_kitchen_closed': updatedUser.isKitchenClosed})
-        .eq('id', updatedUser.id);
-    
+    // Optimistic UI updates
     state = AsyncValue.data(updatedUser);
+    
+    try {
+      // Update Supabase
+      await Supabase.instance.client
+          .from('users')
+          .update({'is_kitchen_closed': updatedUser.isKitchenClosed})
+          .eq('id', updatedUser.id);
+          
+      await _authService.saveUser(updatedUser);
+    } catch (e) {
+      debugPrint('Failed to toggle kitchen status: $e');
+      state = AsyncValue.data(currentUser); // Revert local and state update
+      rethrow;
+    }
   }
   Future<void> updateProfile(UserModel updatedUser) async {
     // 1. Check if image needs upload

@@ -8,6 +8,9 @@ import '../utils/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../providers/auth_provider.dart';
+import '../providers/chat_provider.dart';
+
 class StoryViewerScreen extends ConsumerStatefulWidget {
   final PostModel post;
 
@@ -49,11 +52,16 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
     if (_isLiked) {
       _likeController.forward().then((_) => _likeController.reverse());
       ref.read(socialProvider.notifier).likePost(widget.post.id);
+    } else {
+      ref.read(socialProvider.notifier).unlikePost(widget.post.id);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final posts = ref.watch(socialProvider);
+    final currentPost = posts.firstWhere((p) => p.id == widget.post.id, orElse: () => widget.post);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -124,7 +132,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
+              padding: EdgeInsets.fromLTRB(16, 40, 16, MediaQuery.of(context).padding.bottom + 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.transparent, Colors.black87],
@@ -166,7 +174,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                             ),
                           ),
                           Text(
-                            '${widget.post.likes + (_isLiked ? 1 : 0)}',
+                            '${currentPost.likes}',
                             style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
@@ -218,11 +226,22 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
     );
   }
 
-  void _sendMessage(String val) {
+  void _sendMessage(String val) async {
     if (val.trim().isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Message sent!')),
-      );
+      final currentUser = ref.read(authProvider).value;
+      if (currentUser != null) {
+        final conversationId = getConversationId(currentUser.id, widget.post.chefId);
+        await ref.read(chatProvider(conversationId).notifier).sendMessage(
+          senderId: currentUser.id,
+          receiverId: widget.post.chefId,
+          text: val.trim(),
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Message sent!')),
+          );
+        }
+      }
       _commentController.clear();
       FocusScope.of(context).unfocus();
     }

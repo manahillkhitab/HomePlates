@@ -73,26 +73,34 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       }
     } catch (e) {
       debugPrint('Error fetching orders from cloud: $e');
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to fetch latest orders. Showing local data.')),
+        );
+      }
     }
   }
 
   Future<void> _updateOrderStatus(Map<String, dynamic> orderData, String newStatusStr) async {
     try {
-      final newStatus = OrderStatus.values.firstWhere((e) => e.name.toLowerCase() == newStatusStr.toLowerCase());
+      final newStatus = OrderStatus.values.firstWhere((e) => e.name.toLowerCase() == newStatusStr.toLowerCase(), orElse: () => OrderStatus.pending);
+      final qty = int.tryParse(orderData['quantity']?.toString() ?? '1') ?? 1;
+      final totalP = double.tryParse(orderData['total_price']?.toString() ?? '0') ?? 0.0;
+      
       final order = OrderModel(
-        id: orderData['id'],
-        customerId: orderData['customer_id'],
-        chefId: orderData['chef_id'],
-        dishId: orderData['dish_id'],
-        dishName: orderData['dish_name'],
-        dishImagePath: orderData['dish_image_path'] ?? '',
-        quantity: orderData['quantity'],
-        pricePerItem: (orderData['total_price'] as num).toDouble() / orderData['quantity'],
-        totalPrice: (orderData['total_price'] as num).toDouble(),
-        status: OrderStatus.values.firstWhere((e) => e.name == orderData['status'], orElse: () => OrderStatus.pending),
-        createdAt: DateTime.parse(orderData['created_at']),
-        riderId: orderData['rider_id'],
+        id: orderData['id']?.toString() ?? '',
+        customerId: orderData['customer_id']?.toString() ?? '',
+        chefId: orderData['chef_id']?.toString() ?? '',
+        dishId: orderData['dish_id']?.toString() ?? '',
+        dishName: orderData['dish_name']?.toString() ?? 'Unknown',
+        dishImagePath: orderData['dish_image_path']?.toString() ?? '',
+        quantity: qty,
+        pricePerItem: totalP / (qty > 0 ? qty : 1),
+        totalPrice: totalP,
+        status: OrderStatus.values.firstWhere((e) => e.name.toLowerCase() == orderData['status']?.toString().toLowerCase(), orElse: () => OrderStatus.pending),
+        createdAt: DateTime.tryParse(orderData['created_at']?.toString() ?? '') ?? DateTime.now(),
+        riderId: orderData['rider_id']?.toString(),
       );
 
       final currentUser = ref.read(authProvider).value;
@@ -113,6 +121,9 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       }
     } catch (e) {
       debugPrint('Error updating order status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update order status. Please try again.')));
+      }
     }
   }
 
@@ -125,13 +136,18 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       }
     } catch (e) {
       debugPrint('Error updating refund status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update refund status. Please try again.')));
+      }
     }
   }
 
   List<dynamic> get _filteredOrders {
     if (_selectedStatus == 'all') return _orders;
-    return _orders.where((order) => 
-        (order['status'] as String).toLowerCase() == _selectedStatus.toLowerCase()).toList();
+    return _orders.where((order) {
+      final status = order['status']?.toString() ?? 'pending';
+      return status.toLowerCase() == _selectedStatus.toLowerCase();
+    }).toList();
   }
 
   @override
@@ -163,6 +179,8 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                 _buildFilterChip('Delivered', 'delivered'),
                 const SizedBox(width: 8),
                 _buildFilterChip('Rejected', 'rejected'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Canceled', 'canceled'),
               ],
             ),
           ),
@@ -177,8 +195,8 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                         itemCount: _filteredOrders.length,
                         itemBuilder: (context, index) {
                           final order = _filteredOrders[index];
-                          final status = order['status'] as String;
-                          final price = (order['total_price'] as num).toDouble();
+                          final status = order['status']?.toString() ?? 'pending';
+                          final price = double.tryParse(order['total_price']?.toString() ?? '0') ?? 0.0;
                           
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -249,6 +267,7 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       case 'pickedup': return Colors.purple;
       case 'delivered': return Colors.green;
       case 'rejected': return Colors.red;
+      case 'canceled': return Colors.redAccent;
       default: return Colors.grey;
     }
   }
@@ -258,7 +277,8 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       case 'pending': return Icons.timer_outlined;
       case 'cooking': return Icons.restaurant;
       case 'delivered': return Icons.check_circle_outline;
-      case 'rejected': return Icons.cancel_outlined;
+      case 'rejected':
+      case 'canceled': return Icons.cancel_outlined;
       default: return Icons.receipt_long;
     }
   }
@@ -284,14 +304,17 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
             const SizedBox(height: 24),
             Text('Order Review', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
-            _detailRow('Order ID', order['id'].toString().substring(0, 8).toUpperCase()),
-            _detailRow('Dish', order['dish_name']),
-            _detailRow('Total Price', 'Rs. ${order['total_price']}'),
-            _detailRow('Status', (order['status'] as String).toUpperCase()),
-            _detailRow('Customer ID', order['customer_id']),
-            _detailRow('Chef ID', order['chef_id']),
-            _detailRow('Placed At', DateTime.parse(order['created_at']).toLocal().toString().substring(0, 16)),
-            _detailRow('Refund Status', (order['refund_status'] ?? 'none').toString().toUpperCase()),
+            _detailRow('Order ID', (order['id']?.toString().length ?? 0) >= 8 ? order['id'].toString().substring(0, 8).toUpperCase() : order['id']?.toString().toUpperCase() ?? 'N/A'),
+            _detailRow('Dish', order['dish_name']?.toString() ?? 'Unknown'),
+            _detailRow('Total Price', 'Rs. ${order['total_price'] ?? 0}'),
+            _detailRow('Status', (order['status']?.toString() ?? 'pending').toUpperCase()),
+            _detailRow('Customer ID', order['customer_id']?.toString() ?? 'N/A'),
+            _detailRow('Chef ID', order['chef_id']?.toString() ?? 'N/A'),
+            _detailRow('Placed At', () {
+              final dateStr = (DateTime.tryParse(order['created_at']?.toString() ?? '') ?? DateTime.now()).toLocal().toString();
+              return dateStr.length >= 16 ? dateStr.substring(0, 16) : dateStr;
+            }()),
+            _detailRow('Refund Status', (order['refund_status']?.toString() ?? 'none').toUpperCase()),
             if (order['cancel_reason'] != null)
               _detailRow('Cancel Reason', order['cancel_reason']),
             const SizedBox(height: 32),

@@ -78,13 +78,17 @@ class NotificationService {
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    final notificationId = DateTime.now().millisecond;
-    await flutterLocalNotificationsPlugin.show(
-      notificationId,
-      title,
-      body,
-      platformChannelSpecifics,
-    );
+    try {
+      final displayId = (DateTime.now().millisecondsSinceEpoch % 1000000000).toInt();
+      await flutterLocalNotificationsPlugin.show(
+        displayId,
+        title,
+        body,
+        platformChannelSpecifics,
+      );
+    } catch (e) {
+      debugPrint('Error showing local notification: $e');
+    }
   }
 
   Future<void> markAsRead(String id) async {
@@ -95,18 +99,22 @@ class NotificationService {
     }
   }
 
-  Future<void> markAllAsRead() async {
+  Future<void> markAllAsRead(String userId) async {
     final box = Hive.box<NotificationModel>(AppConstants.notificationBox);
     for (var key in box.keys) {
       final notification = box.get(key);
-      if (notification != null && !notification.isRead) {
+      if (notification != null && !notification.isRead && notification.userId == userId) {
         await box.put(key, notification.copyWith(isRead: true));
       }
     }
   }
 
-  Future<void> clearAll() async {
+  Future<void> clearAll(String userId) async {
     final box = Hive.box<NotificationModel>(AppConstants.notificationBox);
-    await box.clear();
+    final keysToDelete = box.values
+        .where((n) => n.userId == userId)
+        .map((n) => n.id)
+        .toList();
+    await box.deleteAll(keysToDelete);
   }
 }
