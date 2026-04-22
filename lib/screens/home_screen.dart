@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(
                     Icons.inbox_outlined,
                     size: 80,
-                    color: AppTheme.mutedSaffron.withValues(alpha: 0.5),
+                    color: AppTheme.mutedSaffron.withOpacity(0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -131,14 +131,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           Icon(
                             Icons.access_time,
                             size: 14,
-                            color: Colors.grey,
+                            color: AppTheme.lightText,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             _formatDateTime(sample.createdAt),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey,
+                              color: AppTheme.lightText,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -147,7 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? Icons.cloud_done
                                 : Icons.cloud_off,
                             size: 14,
-                            color: Colors.grey,
+                            color: sample.isSynced
+                                ? Colors.green
+                                : AppTheme.lightText,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -156,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 12,
                               color: sample.isSynced
                                   ? Colors.green
-                                  : Colors.grey,
+                                  : AppTheme.lightText,
                             ),
                           ),
                         ],

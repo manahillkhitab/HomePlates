@@ -22,7 +22,7 @@ void main() {
 
   testWidgets('HomePlates app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const HomePlatesApp());
 
     // Wait for splash screen
     await tester.pump(const Duration(seconds: 3));

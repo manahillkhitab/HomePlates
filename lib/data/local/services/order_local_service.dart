@@ -27,55 +27,17 @@ class OrderLocalService {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Latest first
   }
 
-  // Update order status with optional reason, refund, and rider
-  Future<void> updateOrderStatus(
-    String orderId, 
-    OrderStatus newStatus, {
-    String? cancelReason,
-    RefundStatus? refundStatus,
-    String? riderId,
-  }) async {
+  // Update order status
+  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
     final order = _orderBox.get(orderId);
     if (order != null) {
-      await _orderBox.put(
-        orderId, 
-        order.copyWith(
-          status: newStatus,
-          cancelReason: cancelReason ?? order.cancelReason,
-          refundStatus: refundStatus ?? order.refundStatus,
-          riderId: riderId, // Use the provided riderId directly, allowing it to be null
-        ),
-      );
+      await _orderBox.put(orderId, order.copyWith(status: newStatus));
     }
   }
 
   // Get a specific order by ID
   OrderModel? getOrder(String orderId) {
     return _orderBox.get(orderId);
-  }
-
-  // Get available orders for riders (status: ready)
-  List<OrderModel> getAvailableOrders() {
-    return _orderBox.values
-        .where((order) => order.status == OrderStatus.ready && (order.riderId == null || order.riderId!.isEmpty))
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  }
-
-  // Get active deliveries (status: pickedUp)
-  List<OrderModel> getRiderActiveOrders(String riderId) {
-    return _orderBox.values
-        .where((order) => order.status == OrderStatus.pickedUp && order.riderId == riderId)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  }
-  
-  // Get delivery history (status: delivered)
-  List<OrderModel> getRiderHistoryOrders(String riderId) {
-    return _orderBox.values
-        .where((order) => order.status == OrderStatus.delivered && order.riderId == riderId)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   // Watch orders for reactive updates

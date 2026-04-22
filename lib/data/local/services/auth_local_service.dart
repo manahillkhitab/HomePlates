@@ -29,11 +29,6 @@ class AuthLocalService {
     await _userBox.clear();
   }
 
-  // Alias for deleteUser for consistency with AuthNotifier
-  Future<void> clearUser() async {
-    await deleteUser();
-  }
-
   // Listen to user changes
   ValueListenable<Box<UserModel>> watchUser() {
     return _userBox.listenable(keys: ['current_user']);

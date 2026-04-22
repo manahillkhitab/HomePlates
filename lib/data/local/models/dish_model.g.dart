@@ -25,19 +25,13 @@ class DishModelAdapter extends TypeAdapter<DishModel> {
       imagePath: fields[5] as String,
       isAvailable: fields[6] as bool,
       isSynced: fields[7] as bool,
-      updatedAt: fields[8] as DateTime?,
-      isPromoted: fields[9] as bool,
-      options: (fields[10] as List).cast<DishOption>(),
-      category: fields[11] as String,
-      likesCount: fields[12] as int,
-      prepTimeMinutes: fields[13] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, DishModel obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,19 +47,7 @@ class DishModelAdapter extends TypeAdapter<DishModel> {
       ..writeByte(6)
       ..write(obj.isAvailable)
       ..writeByte(7)
-      ..write(obj.isSynced)
-      ..writeByte(8)
-      ..write(obj.updatedAt)
-      ..writeByte(9)
-      ..write(obj.isPromoted)
-      ..writeByte(10)
-      ..write(obj.options)
-      ..writeByte(11)
-      ..write(obj.category)
-      ..writeByte(12)
-      ..write(obj.likesCount)
-      ..writeByte(13)
-      ..write(obj.prepTimeMinutes);
+      ..write(obj.isSynced);
   }
 
   @override

@@ -16,11 +16,6 @@ class DishLocalService {
     return _dishBox.values.where((dish) => dish.chefId == chefId).toList();
   }
 
-  // Get ALL dishes (for customers)
-  List<DishModel> getAllDishes() {
-    return _dishBox.values.toList();
-  }
-
   // Toggle dish availability
   Future<void> toggleAvailability(String dishId) async {
     final dish = _dishBox.get(dishId);
