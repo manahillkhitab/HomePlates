@@ -29,19 +29,31 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+    final reviewState = ref.watch(reviewProvider);
+
     // Get reviews from provider based on what was passed
+    final List<ReviewModel> allReviews = reviewState.valueOrNull ?? [];
     final List<ReviewModel> reviews;
     final double rating;
     final String title;
 
     if (widget.dish != null) {
-      reviews = ref.read(reviewProvider.notifier).getDishReviews(widget.dish!.id);
-      rating = ref.read(reviewProvider.notifier).getDishRating(widget.dish!.id);
+      reviews = allReviews
+          .where((review) => review.dishId == widget.dish!.id)
+          .toList();
+      rating = reviews.isEmpty
+          ? 0.0
+          : reviews.fold<double>(0.0, (sum, review) => sum + review.rating) /
+              reviews.length;
       title = 'Dish Reviews';
     } else if (widget.chefId != null) {
-      reviews = ref.read(reviewProvider.notifier).getChefReviews(widget.chefId!);
-      rating = ref.read(reviewProvider.notifier).getChefRating(widget.chefId!);
+      reviews = allReviews
+          .where((review) => review.chefId == widget.chefId)
+          .toList();
+      rating = reviews.isEmpty
+          ? 0.0
+          : reviews.fold<double>(0.0, (sum, review) => sum + review.rating) /
+              reviews.length;
       title = 'Kitchen Reviews';
     } else {
       reviews = [];
