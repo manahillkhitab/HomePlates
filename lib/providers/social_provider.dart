@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/local/models/post_model.dart';
@@ -45,7 +46,7 @@ class SocialNotifier extends StateNotifier<List<PostModel>> {
       state = posts;
     } catch (e) {
       // Fallback
-      print('Error loading stories with profiles: $e');
+      debugPrint('Error loading stories with profiles: $e');
       // Try loading without profiles as backup
        try {
           final response = await Supabase.instance.client
@@ -63,7 +64,7 @@ class SocialNotifier extends StateNotifier<List<PostModel>> {
             )).toList();
             state = posts;
        } catch (e2) {
-          print('Error fallback loading stories: $e2');
+          debugPrint('Error fallback loading stories: $e2');
        }
     }
   }
@@ -102,7 +103,7 @@ class SocialNotifier extends StateNotifier<List<PostModel>> {
       // Reload
       await loadPosts();
     } catch (e) {
-      print('Error creating story: $e');
+      debugPrint('Error creating story: $e');
       rethrow;
     }
   }

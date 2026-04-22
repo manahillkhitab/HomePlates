@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../data/local/models/order_model.dart';
 import '../data/local/models/dish_model.dart';
 import '../data/local/services/order_local_service.dart';
+import '../data/local/services/notification_service.dart';
 
 class OrderController extends ChangeNotifier {
   final OrderLocalService _orderService = OrderLocalService();
+  final NotificationService _notificationService = NotificationService();
 
   List<OrderModel> _orders = [];
   List<OrderModel> get orders => _orders;
@@ -56,7 +58,48 @@ class OrderController extends ChangeNotifier {
 
   // Update order status (for future chef acceptance flow)
   Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
+    final order = _orderService.getOrder(orderId);
     await _orderService.updateOrderStatus(orderId, newStatus);
+    if (order != null) {
+      await _triggerNotification(order, newStatus);
+    }
     notifyListeners();
+  }
+
+  Future<void> _triggerNotification(
+    OrderModel order,
+    OrderStatus newStatus,
+  ) async {
+    switch (newStatus) {
+      case OrderStatus.accepted:
+        await _notificationService.showStatusNotification(
+          'Order Accepted',
+          'Your order for ${order.dishName} has been accepted.',
+          type: 'order',
+          relatedId: order.id,
+          targetUserId: order.customerId,
+        );
+        break;
+      case OrderStatus.rejected:
+        await _notificationService.showStatusNotification(
+          'Order Rejected',
+          'Your order for ${order.dishName} was rejected.',
+          type: 'order',
+          relatedId: order.id,
+          targetUserId: order.customerId,
+        );
+        break;
+      case OrderStatus.completed:
+        await _notificationService.showStatusNotification(
+          'Order Completed',
+          'Your order for ${order.dishName} has been completed.',
+          type: 'order',
+          relatedId: order.id,
+          targetUserId: order.customerId,
+        );
+        break;
+      case OrderStatus.pending:
+        break;
+    }
   }
 }
