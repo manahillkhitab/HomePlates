@@ -48,9 +48,9 @@ class RiderController extends ChangeNotifier {
     try {
       await _orderService.updateOrderStatus(order.id, OrderStatus.pickedUp);
       _notificationService.showStatusNotification(
-        'Delivery Started',
-        'You picked up ${order.dishName}',
-        targetUserId: rider.id,
+        'Order Picked Up',
+        'Your order for ${order.dishName} has been picked up.',
+        targetUserId: order.customerId,
         type: 'order',
         relatedId: order.id,
       );
@@ -72,9 +72,9 @@ class RiderController extends ChangeNotifier {
     try {
       await _orderService.updateOrderStatus(order.id, OrderStatus.delivered);
       _notificationService.showStatusNotification(
-        'Delivery Complete',
-        'Great job! ${order.dishName} delivered.',
-        targetUserId: rider.id,
+        'Order Delivered',
+        'Your order for ${order.dishName} has been delivered.',
+        targetUserId: order.customerId,
         type: 'order',
         relatedId: order.id,
       );
