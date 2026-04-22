@@ -61,16 +61,13 @@ class OrderController extends ChangeNotifier {
     final order = _orderService.getOrder(orderId);
     await _orderService.updateOrderStatus(orderId, newStatus);
     if (order != null) {
-      await _triggerNotification(order.copyWith(status: newStatus), newStatus);
+      await _triggerNotification(order.copyWith(status: newStatus));
     }
     notifyListeners();
   }
 
-  Future<void> _triggerNotification(
-    OrderModel order,
-    OrderStatus newStatus,
-  ) async {
-    switch (newStatus) {
+  Future<void> _triggerNotification(OrderModel order) async {
+    switch (order.status) {
       case OrderStatus.accepted:
         await _notificationService.showStatusNotification(
           'Order Accepted',
