@@ -47,7 +47,13 @@ class RiderController extends ChangeNotifier {
 
     try {
       await _orderService.updateOrderStatus(order.id, OrderStatus.pickedUp);
-      _notificationService.showStatusNotification('Delivery Started', 'You picked up ${order.dishName}');
+      _notificationService.showStatusNotification(
+        'Delivery Started',
+        'You picked up ${order.dishName}',
+        targetUserId: rider.id,
+        type: 'order',
+        relatedId: order.id,
+      );
       notifyListeners();
       return true;
     } catch (e) {
@@ -65,7 +71,13 @@ class RiderController extends ChangeNotifier {
 
     try {
       await _orderService.updateOrderStatus(order.id, OrderStatus.delivered);
-      _notificationService.showStatusNotification('Delivery Complete', 'Great job! ${order.dishName} delivered.');
+      _notificationService.showStatusNotification(
+        'Delivery Complete',
+        'Great job! ${order.dishName} delivered.',
+        targetUserId: rider.id,
+        type: 'order',
+        relatedId: order.id,
+      );
       notifyListeners();
       return true;
     } catch (e) {
