@@ -61,7 +61,7 @@ class OrderController extends ChangeNotifier {
     final order = _orderService.getOrder(orderId);
     await _orderService.updateOrderStatus(orderId, newStatus);
     if (order != null) {
-      await _triggerNotification(order, newStatus);
+      await _triggerNotification(order.copyWith(status: newStatus), newStatus);
     }
     notifyListeners();
   }
