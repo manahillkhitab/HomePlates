@@ -11,13 +11,15 @@ class ThemeController {
   ThemeController._internal();
 
   /// Check if dark mode is enabled
-  bool get isDarkMode => _settingsBox.get(AppConstants.themeKey, defaultValue: false);
+  bool get isDarkMode =>
+      _settingsBox.get(AppConstants.themeKey, defaultValue: false);
 
   /// Toggle theme and save preference
   Future<void> toggleTheme(bool isDark) async {
     await _settingsBox.put(AppConstants.themeKey, isDark);
   }
-  
+
   /// Listen to theme changes
-  ValueListenable<Box> get themeListenable => _settingsBox.listenable(keys: [AppConstants.themeKey]);
+  ValueListenable<Box> get themeListenable =>
+      _settingsBox.listenable(keys: [AppConstants.themeKey]);
 }

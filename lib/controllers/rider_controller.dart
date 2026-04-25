@@ -46,7 +46,11 @@ class RiderController extends ChangeNotifier {
     }
 
     try {
-      await _orderService.updateOrderStatus(order.id, OrderStatus.pickedUp);
+      await _orderService.updateOrderStatus(
+        order.id,
+        OrderStatus.pickedUp,
+        riderId: rider.id,
+      );
       _notificationService.showStatusNotification(
         'Order Picked Up',
         'Your order for ${order.dishName} has been picked up.',

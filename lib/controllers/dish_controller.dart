@@ -52,12 +52,12 @@ class DishController extends ChangeNotifier {
   Future<String?> saveImageLocally(File imageFile) async {
     try {
       debugPrint('Starting to save image: ${imageFile.path}');
-      
+
       final directory = await getApplicationDocumentsDirectory();
       debugPrint('App documents directory: ${directory.path}');
-      
+
       final dishImagesDir = Directory('${directory.path}/dish_images');
-      
+
       // Create directory if it doesn't exist
       if (!await dishImagesDir.exists()) {
         await dishImagesDir.create(recursive: true);
@@ -65,16 +65,17 @@ class DishController extends ChangeNotifier {
       }
 
       // Generate unique filename
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
       final newPath = '${dishImagesDir.path}/$fileName';
-      
+
       debugPrint('Copying image to: $newPath');
 
       // Copy file to app directory
       final savedImage = await imageFile.copy(newPath);
       debugPrint('Image saved successfully: ${savedImage.path}');
       debugPrint('File exists after save: ${await savedImage.exists()}');
-      
+
       return savedImage.path;
     } catch (e) {
       debugPrint('Error saving image: $e');
@@ -93,7 +94,7 @@ class DishController extends ChangeNotifier {
   }) async {
     try {
       debugPrint('Adding dish with image path: $imagePath');
-      
+
       final dish = DishModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         chefId: chefId,
@@ -106,7 +107,7 @@ class DishController extends ChangeNotifier {
 
       await _dishService.addDish(dish);
       debugPrint('Dish added to Hive successfully');
-      
+
       loadDishesForChef(chefId);
       return true;
     } catch (e) {

@@ -4,10 +4,10 @@ import '../data/local/sample_model.dart';
 
 class HomeController {
   final LocalStorageService _storageService = LocalStorageService();
-  
+
   // ValueNotifier for reactive UI updates
   final ValueNotifier<List<SampleModel>> samplesNotifier = ValueNotifier([]);
-  
+
   HomeController() {
     loadSamples();
   }

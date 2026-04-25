@@ -37,31 +37,45 @@ class ConversationsScreen extends ConsumerWidget {
         centerTitle: true,
       ),
       body: ValueListenableBuilder(
-        valueListenable: Hive.box<MessageModel>(AppConstants.messageBox).listenable(),
+        valueListenable: Hive.box<MessageModel>(
+          AppConstants.messageBox,
+        ).listenable(),
         builder: (context, Box<MessageModel> box, _) {
           final messages = box.values.toList();
-          
+
           // Group messages by conversation
           final conversations = <String, MessageModel>{};
           for (var msg in messages) {
-            if (msg.senderId == currentUser.id || msg.receiverId == currentUser.id) {
-              final otherId = msg.senderId == currentUser.id ? msg.receiverId : msg.senderId;
+            if (msg.senderId == currentUser.id ||
+                msg.receiverId == currentUser.id) {
+              final otherId = msg.senderId == currentUser.id
+                  ? msg.receiverId
+                  : msg.senderId;
               final existing = conversations[otherId];
-              if (existing == null || msg.createdAt.isAfter(existing.createdAt)) {
+              if (existing == null ||
+                  msg.createdAt.isAfter(existing.createdAt)) {
                 conversations[otherId] = msg;
               }
             }
           }
 
           final sortedOtherUserIds = conversations.keys.toList()
-            ..sort((a, b) => conversations[b]!.createdAt.compareTo(conversations[a]!.createdAt));
+            ..sort(
+              (a, b) => conversations[b]!.createdAt.compareTo(
+                conversations[a]!.createdAt,
+              ),
+            );
 
           if (sortedOtherUserIds.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.chat_bubble_outline_rounded, size: 80, color: AppTheme.primaryGold.withValues(alpha: 0.2)),
+                  Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 80,
+                    color: AppTheme.primaryGold.withValues(alpha: 0.2),
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     'No messages yet',
@@ -82,7 +96,7 @@ class ConversationsScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final otherId = sortedOtherUserIds[index];
               final lastMsg = conversations[otherId]!;
-              
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
@@ -97,10 +111,18 @@ class ConversationsScreen extends ConsumerWidget {
                   ],
                 ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   leading: CircleAvatar(
-                    backgroundColor: AppTheme.primaryGold.withValues(alpha: 0.1),
-                    child: const Icon(Icons.person_rounded, color: AppTheme.primaryGold),
+                    backgroundColor: AppTheme.primaryGold.withValues(
+                      alpha: 0.1,
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      color: AppTheme.primaryGold,
+                    ),
                   ),
                   title: Text(
                     otherId.length > 8
@@ -120,14 +142,21 @@ class ConversationsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         _formatTime(lastMsg.createdAt),
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
                       ),
-                      if (!lastMsg.isRead && lastMsg.receiverId == currentUser.id)
+                      if (!lastMsg.isRead &&
+                          lastMsg.receiverId == currentUser.id)
                         Container(
                           margin: const EdgeInsets.only(top: 4),
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(color: AppTheme.primaryGold, shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryGold,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                     ],
                   ),
@@ -153,7 +182,9 @@ class ConversationsScreen extends ConsumerWidget {
 
   String _formatTime(DateTime date) {
     final now = DateTime.now();
-    if (now.day == date.day && now.month == date.month && now.year == date.year) {
+    if (now.day == date.day &&
+        now.month == date.month &&
+        now.year == date.year) {
       return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
     }
     return '${date.day}/${date.month}';

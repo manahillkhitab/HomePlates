@@ -4,7 +4,7 @@ import '../data/local/services/auth_local_service.dart';
 
 class AuthController extends ChangeNotifier {
   final AuthLocalService _authService = AuthLocalService();
-  
+
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
 
@@ -22,12 +22,12 @@ class AuthController extends ChangeNotifier {
     // Generate consistent ID based on name and role
     // This ensures the same user always gets the same ID
     final consistentId = '${name.toLowerCase()}_${role.name}';
-    
+
     debugPrint('=== Login ===');
     debugPrint('Name: $name');
     debugPrint('Role: ${role.name}');
     debugPrint('Generated ID: $consistentId');
-    
+
     final user = UserModel(
       id: consistentId,
       name: name,

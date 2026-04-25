@@ -44,7 +44,7 @@ class UserModel extends HiveObject {
 
   @HiveField(4)
   final bool isSynced;
-  
+
   @HiveField(5)
   final String email;
 
@@ -142,16 +142,26 @@ class UserModel extends HiveObject {
 
   // Helper to check if a specific role is approved
   bool isRoleApproved(UserRole targetRole) {
-    if (targetRole == UserRole.admin) return isAdmin || rolesData[UserRole.admin.name] == 'approved' || rolesData[UserRole.admin.name] == true || rolesData[UserRole.admin.name] == 'true';
-    if (targetRole == UserRole.customer) return true; // Customers are always approved
-    
+    if (targetRole == UserRole.admin)
+      return isAdmin ||
+          rolesData[UserRole.admin.name] == 'approved' ||
+          rolesData[UserRole.admin.name] == true ||
+          rolesData[UserRole.admin.name] == 'true';
+    if (targetRole == UserRole.customer)
+      return true; // Customers are always approved
+
     final val = rolesData[targetRole.name];
     return val == 'approved' || val == true || val == 'true';
   }
 
   // Helper to check if user HAS a role (pending or approved)
   bool hasRole(UserRole targetRole) {
-    if (targetRole == UserRole.admin) return isAdmin || (rolesData[UserRole.admin.name] != null && rolesData[UserRole.admin.name] != false && rolesData[UserRole.admin.name] != 'none' && rolesData[UserRole.admin.name] != 'false');
+    if (targetRole == UserRole.admin)
+      return isAdmin ||
+          (rolesData[UserRole.admin.name] != null &&
+              rolesData[UserRole.admin.name] != false &&
+              rolesData[UserRole.admin.name] != 'none' &&
+              rolesData[UserRole.admin.name] != 'false');
     if (targetRole == UserRole.customer) return true;
     final val = rolesData[targetRole.name];
     return val != null && val != 'none' && val != false && val != 'false';
@@ -219,52 +229,64 @@ class UserModel extends HiveObject {
     // 1. Parse Active Role
     final activeRoleStr = json['active_role'] as String? ?? 'customer';
     final activeRole = UserRole.values.firstWhere(
-      (e) => e.name == activeRoleStr, 
-      orElse: () => UserRole.customer
+      (e) => e.name == activeRoleStr,
+      orElse: () => UserRole.customer,
     );
 
     // 2. Parse Roles Data
     Map<dynamic, dynamic> rolesHelper = {};
     if (json['roles'] != null && json['roles'] is Map) {
-      rolesHelper = (json['roles'] as Map).map((key, value) => MapEntry(key.toString(), value));
+      rolesHelper = (json['roles'] as Map).map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
     } else {
       // Fallback for old data or immediate migration
       rolesHelper = {'customer': true};
       final oldRole = json['role'] as String?;
       if (oldRole == 'chef') rolesHelper['chef'] = json['status'] ?? 'pending';
-      if (oldRole == 'rider') rolesHelper['rider'] = json['status'] ?? 'pending';
+      if (oldRole == 'rider')
+        rolesHelper['rider'] = json['status'] ?? 'pending';
     }
 
     // 3. Determine Status based on Active Role
-    // If active role is customer, status is approved. 
+    // If active role is customer, status is approved.
     // If chef/rider, fetch status from the map.
     UserStatus resolvedStatus = UserStatus.approved;
-    
+
     if (activeRole == UserRole.chef || activeRole == UserRole.rider) {
       final statusStr = rolesHelper[activeRole.name];
       if (statusStr is String) {
         resolvedStatus = UserStatus.values.firstWhere(
-          (e) => e.name == statusStr, 
-          orElse: () => UserStatus.pending
+          (e) => e.name == statusStr,
+          orElse: () => UserStatus.pending,
         );
       }
     } else if (activeRole == UserRole.admin) {
-        resolvedStatus = UserStatus.approved;
+      resolvedStatus = UserStatus.approved;
     }
 
     return UserModel(
-      id: json['id']?.toString() ?? (throw FormatException("Missing required field 'id'")),
+      id:
+          json['id']?.toString() ??
+          (throw FormatException("Missing required field 'id'")),
       name: json['name'] as String? ?? 'User',
       role: activeRole, // Mapped to active_role
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       address: json['address'] as String? ?? '',
       kitchenName: json['kitchen_name'] as String? ?? '',
-      categories: (json['categories'] is List) 
+      categories: (json['categories'] is List)
           ? (json['categories'] as List).map((e) => e.toString()).toList()
           : (json['categories'] is String && json['categories'] != null)
-              ? List<String>.from(json['categories'].toString().replaceAll('[', '').replaceAll(']', '').split(',').map((e) => e.trim()))
-              : [],
+          ? List<String>.from(
+              json['categories']
+                  .toString()
+                  .replaceAll('[', '')
+                  .replaceAll(']', '')
+                  .split(',')
+                  .map((e) => e.trim()),
+            )
+          : [],
       vehicleType: json['vehicle_type'] as String? ?? '',
       vehicleNumber: json['vehicle_number'] as String? ?? '',
       termsAccepted: json['terms_accepted'] as bool? ?? false,
@@ -272,22 +294,37 @@ class UserModel extends HiveObject {
       isSynced: true,
       status: resolvedStatus,
       isKitchenClosed: json['is_kitchen_closed'] as bool? ?? false,
-      createdAt: json['created_at'] != null ? (DateTime.tryParse(json['created_at'].toString()) ?? (throw FormatException("Invalid 'created_at' date format"))) : DateTime.now(),
-      updatedAt: json['updated_at'] != null ? (DateTime.tryParse(json['updated_at'].toString()) ?? (throw FormatException("Invalid 'updated_at' date format"))) : DateTime.now(),
-      
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString()) ??
+                (throw FormatException("Invalid 'created_at' date format")))
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? (DateTime.tryParse(json['updated_at'].toString()) ??
+                (throw FormatException("Invalid 'updated_at' date format")))
+          : DateTime.now(),
+
       // Extended Fields
-      orderedCategories: json['ordered_categories'] is Map 
-          ? (json['ordered_categories'] as Map).map((key, value) => MapEntry(key.toString(), int.tryParse(value.toString()) ?? 0))
+      orderedCategories: json['ordered_categories'] is Map
+          ? (json['ordered_categories'] as Map).map(
+              (key, value) =>
+                  MapEntry(key.toString(), int.tryParse(value.toString()) ?? 0),
+            )
           : {},
-      followingChefIds: (json['following_chef_ids'] is List) ? (json['following_chef_ids'] as List).map((e) => e.toString()).toList() : [],
+      followingChefIds: (json['following_chef_ids'] is List)
+          ? (json['following_chef_ids'] as List)
+                .map((e) => e.toString())
+                .toList()
+          : [],
       referralCode: json['referral_code']?.toString(),
       referredBy: json['referred_by']?.toString(),
       subscriptionTier: SubscriptionTier.values.firstWhere(
         (e) => e.name == (json['subscription_tier'] ?? 'free'),
         orElse: () => SubscriptionTier.free,
       ),
-      subscriptionExpiry: json['subscription_expiry'] != null ? DateTime.tryParse(json['subscription_expiry'].toString()) : null,
-      
+      subscriptionExpiry: json['subscription_expiry'] != null
+          ? DateTime.tryParse(json['subscription_expiry'].toString())
+          : null,
+
       // New Roles Data
       rolesData: rolesHelper,
       isAdmin: json['is_admin'] as bool? ?? (activeRole == UserRole.admin),

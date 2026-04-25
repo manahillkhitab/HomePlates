@@ -8,7 +8,8 @@ class AdminSettingsScreen extends ConsumerStatefulWidget {
   const AdminSettingsScreen({super.key});
 
   @override
-  ConsumerState<AdminSettingsScreen> createState() => _AdminSettingsScreenState();
+  ConsumerState<AdminSettingsScreen> createState() =>
+      _AdminSettingsScreenState();
 }
 
 class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
@@ -33,7 +34,10 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Command Center',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: AppTheme.primaryGold),
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.w900,
+            color: AppTheme.primaryGold,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,7 +48,9 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
         ),
       ),
       body: asyncConfig.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryGold),
+        ),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (config) {
           return SingleChildScrollView(
@@ -52,55 +58,71 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 _buildSectionHeader('Revenue Split', Icons.pie_chart_rounded),
-                 const SizedBox(height: 20),
-                 _buildCommissionSlider(
-                   label: 'Chef Commission',
-                   value: config.chefCommission,
-                   onChanged: (val) => ref.read(configProvider.notifier).updateChefCommission(val),
-                   color: Colors.greenAccent,
-                 ),
-                 const SizedBox(height: 24),
-                 _buildCommissionSlider(
-                   label: 'Rider Commission',
-                   value: config.riderCommission,
-                   onChanged: (val) => ref.read(configProvider.notifier).updateRiderCommission(val),
-                   color: Colors.cyanAccent,
-                 ),
-                 const SizedBox(height: 40),
-                 _buildSectionHeader('Logistics & Pricing', Icons.delivery_dining_rounded),
-                 const SizedBox(height: 24),
-                 _buildFeeInput(
-                   label: 'Base Delivery Fee',
-                   value: config.baseDeliveryFee,
-                   onChanged: (val) => ref.read(configProvider.notifier).updateBaseDeliveryFee(val),
-                   prefix: 'Rs.',
-                 ),
-                 const SizedBox(height: 40),
-                 Container(
-                   padding: const EdgeInsets.all(20),
-                   decoration: BoxDecoration(
-                     color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                     borderRadius: BorderRadius.circular(20),
-                     border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.2)),
-                   ),
-                   child: Row(
-                     children: [
-                       const Icon(Icons.info_outline_rounded, color: AppTheme.primaryGold),
-                       const SizedBox(width: 16),
-                       Expanded(
-                         child: Text(
-                           'Platform Revenue is automatically calculated as: 100% - Chef% - Rider%.',
-                           style: GoogleFonts.outfit(
-                             fontSize: 12,
-                             fontWeight: FontWeight.w500,
-                             color: isDark ? Colors.white70 : AppTheme.warmCharcoal,
-                           ),
-                         ),
-                       ),
-                     ],
-                   ),
-                 ),
+                _buildSectionHeader('Revenue Split', Icons.pie_chart_rounded),
+                const SizedBox(height: 20),
+                _buildCommissionSlider(
+                  label: 'Chef Commission',
+                  value: config.chefCommission,
+                  onChanged: (val) => ref
+                      .read(configProvider.notifier)
+                      .updateChefCommission(val),
+                  color: Colors.greenAccent,
+                ),
+                const SizedBox(height: 24),
+                _buildCommissionSlider(
+                  label: 'Rider Commission',
+                  value: config.riderCommission,
+                  onChanged: (val) => ref
+                      .read(configProvider.notifier)
+                      .updateRiderCommission(val),
+                  color: Colors.cyanAccent,
+                ),
+                const SizedBox(height: 40),
+                _buildSectionHeader(
+                  'Logistics & Pricing',
+                  Icons.delivery_dining_rounded,
+                ),
+                const SizedBox(height: 24),
+                _buildFeeInput(
+                  label: 'Base Delivery Fee',
+                  value: config.baseDeliveryFee,
+                  onChanged: (val) => ref
+                      .read(configProvider.notifier)
+                      .updateBaseDeliveryFee(val),
+                  prefix: 'Rs.',
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGold.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.primaryGold.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline_rounded,
+                        color: AppTheme.primaryGold,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          'Platform Revenue is automatically calculated as: 100% - Chef% - Rider%.',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: isDark
+                                ? Colors.white70
+                                : AppTheme.warmCharcoal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           );
@@ -134,10 +156,20 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 16)),
+            Text(
+              label,
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
+            ),
             Text(
               '${((value > 1 ? value / 100 : value) * 100).toStringAsFixed(0)}%',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: color, fontSize: 18),
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w900,
+                color: color,
+                fontSize: 18,
+              ),
             ),
           ],
         ),
@@ -167,7 +199,10 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 16)),
+        Text(
+          label,
+          style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 16),
+        ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -178,7 +213,13 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
           ),
           child: Row(
             children: [
-              Text(prefix, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: AppTheme.primaryGold)),
+              Text(
+                prefix,
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryGold,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
@@ -189,7 +230,9 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                     final d = double.tryParse(val);
                     if (d != null) onChanged(d);
                   },
-                  controller: TextEditingController(text: value.toStringAsFixed(0)),
+                  controller: TextEditingController(
+                    text: value.toStringAsFixed(0),
+                  ),
                 ),
               ),
             ],

@@ -11,7 +11,11 @@ class LeaveReviewScreen extends ConsumerStatefulWidget {
   final OrderModel order;
   final String customerName;
 
-  const LeaveReviewScreen({super.key, required this.order, required this.customerName});
+  const LeaveReviewScreen({
+    super.key,
+    required this.order,
+    required this.customerName,
+  });
 
   @override
   ConsumerState<LeaveReviewScreen> createState() => _LeaveReviewScreenState();
@@ -29,15 +33,17 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
       return;
     }
 
-    final success = await ref.read(reviewProvider.notifier).addReview(
-      customerId: widget.order.customerId,
-      customerName: widget.customerName,
-      chefId: widget.order.chefId,
-      dishId: widget.order.dishId,
-      orderId: widget.order.id,
-      rating: _rating,
-      comment: _commentController.text.trim(),
-    );
+    final success = await ref
+        .read(reviewProvider.notifier)
+        .addReview(
+          customerId: widget.order.customerId,
+          customerName: widget.customerName,
+          chefId: widget.order.chefId,
+          dishId: widget.order.dishId,
+          orderId: widget.order.id,
+          rating: _rating,
+          comment: _commentController.text.trim(),
+        );
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +74,10 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
             elevation: 0,
             backgroundColor: theme.scaffoldBackgroundColor,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              titlePadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
               title: Text(
                 'Rate Experience',
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -106,34 +115,60 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                           height: 100,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppTheme.mutedSaffron.withValues(alpha: 0.2)),
+                            border: Border.all(
+                              color: AppTheme.mutedSaffron.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: widget.order.dishImagePath.isNotEmpty
                                 ? (widget.order.dishImagePath.startsWith('http')
-                                    ? CachedNetworkImage(
-                                        imageUrl: widget.order.dishImagePath,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) => Container(
-                                          color: Colors.grey.withValues(alpha: 0.1),
-                                          child: const Center(child: CircularProgressIndicator()),
-                                        ),
-                                        errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
-                                      )
-                                    : Image.file(
-                                        File(widget.order.dishImagePath),
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => 
-                                            const Icon(Icons.broken_image, color: Colors.grey),
-                                      ))
-                                : const Icon(Icons.restaurant, size: 40, color: Colors.grey),
+                                      ? CachedNetworkImage(
+                                          imageUrl: widget.order.dishImagePath,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              Container(
+                                                color: Colors.grey.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(
+                                                Icons.broken_image,
+                                                color: Colors.grey,
+                                              ),
+                                        )
+                                      : Image.file(
+                                          File(widget.order.dishImagePath),
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(
+                                                    Icons.broken_image,
+                                                    color: Colors.grey,
+                                                  ),
+                                        ))
+                                : const Icon(
+                                    Icons.restaurant,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 20),
                         Text(
                           widget.order.dishName,
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: -0.5),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 22,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                         if (widget.order.chefName != null) ...[
                           const SizedBox(height: 4),
@@ -149,10 +184,13 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                         const SizedBox(height: 8),
                         const Text(
                           'How was your meal?',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
                         ),
                         const SizedBox(height: 24),
-                        
+
                         // Star Rating - FIXED OVERFLOW
                         FittedBox(
                           child: Row(
@@ -166,9 +204,13 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                                 },
                                 borderRadius: BorderRadius.circular(30),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
                                   child: Icon(
-                                    index < _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                                    index < _rating
+                                        ? Icons.star_rounded
+                                        : Icons.star_outline_rounded,
                                     color: AppTheme.mutedSaffron,
                                     size: 44, // Slightly controlled size
                                   ),
@@ -180,9 +222,9 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Comment Label
                   Align(
                     alignment: Alignment.centerLeft,
@@ -192,12 +234,14 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
                         letterSpacing: 1.5,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Comment Field
                   TextField(
                     controller: _commentController,
@@ -212,19 +256,28 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: AppTheme.mutedSaffron.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(
+                          color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: const BorderSide(color: AppTheme.mutedSaffron, width: 2),
+                        borderSide: const BorderSide(
+                          color: AppTheme.mutedSaffron,
+                          width: 2,
+                        ),
                       ),
-                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
+                      hintStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
                       contentPadding: const EdgeInsets.all(20),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Submit Button
                   SizedBox(
                     width: double.infinity,
@@ -235,15 +288,20 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                       child: const Text(
-                        'SUBMIT REVIEW', 
-                        style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+                        'SUBMIT REVIEW',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 100),
                 ],
               ),
@@ -254,4 +312,3 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
     );
   }
 }
-

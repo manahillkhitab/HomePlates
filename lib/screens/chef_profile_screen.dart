@@ -1,15 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../data/local/models/user_model.dart';
-import '../data/local/models/dish_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/dish_provider.dart';
 import '../providers/social_provider.dart';
 import '../utils/app_theme.dart';
-import 'reviews_screen.dart';
-import 'wallet_screen.dart'; // Added this import
 import '../widgets/dish_card.dart';
 import '../providers/review_provider.dart';
 import 'chat_screen.dart';
@@ -35,7 +32,9 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
   }
 
   Future<void> _loadStats() async {
-    final count = await ref.read(authProvider.notifier).getFollowerCount(widget.chefId);
+    final count = await ref
+        .read(authProvider.notifier)
+        .getFollowerCount(widget.chefId);
     if (mounted) {
       setState(() {
         _followerCount = count;
@@ -48,17 +47,31 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     final currentUser = ref.watch(authProvider).value;
     final chefAsync = ref.watch(userByIdProvider(widget.chefId));
-    
-    final chefDishes = ref.watch(dishProvider).value?.where((d) => d.chefId == widget.chefId).toList() ?? [];
-    final chefRating = ref.read(reviewProvider.notifier).getChefRating(widget.chefId);
-    final chefReviews = ref.read(reviewProvider.notifier).getChefReviews(widget.chefId);
-    final chefStories = ref.watch(socialProvider).where((s) => s.chefId == widget.chefId).toList();
-    
+
+    final chefDishes =
+        ref
+            .watch(dishProvider)
+            .value
+            ?.where((d) => d.chefId == widget.chefId)
+            .toList() ??
+        [];
+    final chefRating = ref
+        .read(reviewProvider.notifier)
+        .getChefRating(widget.chefId);
+    final chefReviews = ref
+        .read(reviewProvider.notifier)
+        .getChefReviews(widget.chefId);
+    final chefStories = ref
+        .watch(socialProvider)
+        .where((s) => s.chefId == widget.chefId)
+        .toList();
+
     return chefAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
       data: (chef) => Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -71,9 +84,16 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildChefHeader(context, currentUser, chef, ref, chefRating, chefReviews.length),
+                    _buildChefHeader(
+                      context,
+                      currentUser,
+                      chef,
+                      ref,
+                      chefRating,
+                      chefReviews.length,
+                    ),
                     const SizedBox(height: 32),
-                    
+
                     if (chefStories.isNotEmpty) ...[
                       Text(
                         'KITCHEN STORIES',
@@ -90,28 +110,35 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: chefStories.length,
-                          separatorBuilder: (context, index) => const SizedBox(width: 12),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 12),
                           itemBuilder: (context, index) {
                             final story = chefStories[index];
                             return Container(
                               width: 90,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryGold.withValues(alpha: 0.05),
+                                color: AppTheme.primaryGold.withValues(
+                                  alpha: 0.05,
+                                ),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: story.imageUrl.startsWith('http')
-                                  ? Image.network(
-                                      story.imageUrl, 
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => _buildStoryFallback(),
-                                    )
-                                  : Image.file(
-                                      File(story.imageUrl), 
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => _buildStoryFallback(),
-                                    ),
+                                    ? Image.network(
+                                        story.imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                _buildStoryFallback(),
+                                      )
+                                    : Image.file(
+                                        File(story.imageUrl),
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                _buildStoryFallback(),
+                                      ),
                               ),
                             );
                           },
@@ -119,7 +146,7 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                       ),
                       const SizedBox(height: 32),
                     ],
-                    
+
                     Text(
                       'KITCHEN MENU',
                       style: GoogleFonts.outfit(
@@ -143,16 +170,14 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final isMe = currentUser?.id == widget.chefId;
-                    return DishCard(
-                      dish: chefDishes[index],
-                      showStats: isMe, // Stats mode for Chef (hides ETA, shows Count)
-                    );
-                  },
-                  childCount: chefDishes.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final isMe = currentUser?.id == widget.chefId;
+                  return DishCard(
+                    dish: chefDishes[index],
+                    showStats:
+                        isMe, // Stats mode for Chef (hides ETA, shows Count)
+                  );
+                }, childCount: chefDishes.length),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
@@ -171,10 +196,14 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-             Container(color: AppTheme.primaryGold.withValues(alpha: 0.1)),
-             Center(
-               child: Icon(Icons.restaurant_menu_rounded, size: 80, color: AppTheme.primaryGold.withValues(alpha: 0.2)),
-             ),
+            Container(color: AppTheme.primaryGold.withValues(alpha: 0.1)),
+            Center(
+              child: Icon(
+                Icons.restaurant_menu_rounded,
+                size: 80,
+                color: AppTheme.primaryGold.withValues(alpha: 0.2),
+              ),
+            ),
           ],
         ),
       ),
@@ -185,13 +214,23 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
     );
   }
 
-  Widget _buildChefHeader(BuildContext context, UserModel? currentUser, UserModel? chef, WidgetRef ref, double rating, int reviewCount) {
+  Widget _buildChefHeader(
+    BuildContext context,
+    UserModel? currentUser,
+    UserModel? chef,
+    WidgetRef ref,
+    double rating,
+    int reviewCount,
+  ) {
     if (chef == null) return const SizedBox();
-    
+
     final bool isMe = currentUser?.id == widget.chefId;
-    final bool isFollowing = currentUser?.followingChefIds.contains(widget.chefId) ?? false;
+    final bool isFollowing =
+        currentUser?.followingChefIds.contains(widget.chefId) ?? false;
     final bool isTopMerchant = rating >= 4.5;
-    final String displayName = chef.kitchenName.isNotEmpty ? chef.kitchenName : chef.name;
+    final String displayName = chef.kitchenName.isNotEmpty
+        ? chef.kitchenName
+        : chef.name;
 
     return Row(
       children: [
@@ -202,29 +241,38 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
           decoration: BoxDecoration(
             color: AppTheme.warmCharcoal,
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.5), width: 2),
+            border: Border.all(
+              color: AppTheme.primaryGold.withValues(alpha: 0.5),
+              width: 2,
+            ),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 5))
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
             ],
           ),
           child: ClipOval(
             child: chef.profileImageUrl.isNotEmpty
                 ? (chef.profileImageUrl.startsWith('http')
-                    ? Image.network(
-                        chef.profileImageUrl, 
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildProfileFallback(),
-                      )
-                    : Image.file(
-                        File(chef.profileImageUrl), 
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildProfileFallback(),
-                      ))
+                      ? Image.network(
+                          chef.profileImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildProfileFallback(),
+                        )
+                      : Image.file(
+                          File(chef.profileImageUrl),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildProfileFallback(),
+                        ))
                 : _buildProfileFallback(),
           ),
         ),
         const SizedBox(width: 20),
-        
+
         // Name and Stats
         Expanded(
           child: Column(
@@ -233,25 +281,32 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
               Text(
                 displayName.isNotEmpty ? displayName : 'Unnamed Kitchen',
                 style: GoogleFonts.outfit(
-                  fontSize: 24, 
+                  fontSize: 24,
                   fontWeight: FontWeight.w900,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
               const SizedBox(height: 6),
-              
+
               // Ratings Row
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 14,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '$rating',
@@ -275,16 +330,24 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                   ),
                 ],
               ),
-              
+
               if (isTopMerchant) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.verified_rounded, color: Colors.blueAccent, size: 14),
+                    const Icon(
+                      Icons.verified_rounded,
+                      color: Colors.blueAccent,
+                      size: 14,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Verified Kitchen',
-                      style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                      style: GoogleFonts.outfit(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
                     ),
                   ],
                 ),
@@ -299,26 +362,32 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
           children: [
             if (isMe) ...[
               // MY PROFILE VIEW: Show Stats
-               Container(
+              Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppTheme.primaryGold.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   children: [
                     Text(
                       _isLoadingStats ? '-' : '$_followerCount',
                       style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w900, 
-                        fontSize: 18, 
-                        color: AppTheme.primaryGold
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: AppTheme.primaryGold,
                       ),
                     ),
                     Text(
                       'Followers',
-                      style: GoogleFonts.outfit(fontSize: 10, color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.outfit(
+                        fontSize: 10,
+                        color: AppTheme.primaryGold,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -329,8 +398,10 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (currentUser == null) return;
-                  
-                  final updatedFollowing = List<String>.from(currentUser.followingChefIds);
+
+                  final updatedFollowing = List<String>.from(
+                    currentUser.followingChefIds,
+                  );
                   if (isFollowing) {
                     updatedFollowing.remove(widget.chefId);
                     setState(() => _followerCount--); // Optimistic Update
@@ -338,28 +409,46 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                     updatedFollowing.add(widget.chefId);
                     setState(() => _followerCount++); // Optimistic Update
                   }
-                  
-                  await ref.read(authProvider.notifier).updateProfile(
-                    currentUser.copyWith(followingChefIds: updatedFollowing),
-                  );
+
+                  await ref
+                      .read(authProvider.notifier)
+                      .updateProfile(
+                        currentUser.copyWith(
+                          followingChefIds: updatedFollowing,
+                        ),
+                      );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isFollowing ? Colors.grey[200] : AppTheme.primaryGold,
+                  backgroundColor: isFollowing
+                      ? Colors.grey[200]
+                      : AppTheme.primaryGold,
                   foregroundColor: isFollowing ? Colors.black : Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                 ),
                 child: Text(
                   isFollowing ? 'FOLLOWING' : 'FOLLOW',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 11),
+                  style: GoogleFonts.outfit(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 11,
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
               if (!_isLoadingStats)
                 Text(
                   '$_followerCount Followers',
-                  style: GoogleFonts.outfit(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.outfit(
+                    fontSize: 10,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               const SizedBox(height: 8),
               OutlinedButton(
@@ -370,7 +459,9 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                       MaterialPageRoute(
                         builder: (context) => ChatScreen(
                           otherUserId: chef.id,
-                          otherUserName: displayName.isNotEmpty ? displayName : 'Chef',
+                          otherUserName: displayName.isNotEmpty
+                              ? displayName
+                              : 'Chef',
                         ),
                       ),
                     );
@@ -378,16 +469,21 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppTheme.primaryGold, width: 1),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   minimumSize: const Size(0, 30),
                 ),
                 child: Text(
                   'MESSAGE',
                   style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w900, 
+                    fontWeight: FontWeight.w900,
                     fontSize: 10,
-                    color: AppTheme.primaryGold
+                    color: AppTheme.primaryGold,
                   ),
                 ),
               ),
@@ -401,14 +497,22 @@ class _ChefProfileScreenState extends ConsumerState<ChefProfileScreen> {
   Widget _buildProfileFallback() {
     return Container(
       color: AppTheme.primaryGold.withValues(alpha: 0.1),
-      child: const Icon(Icons.restaurant_rounded, color: AppTheme.primaryGold, size: 30),
+      child: const Icon(
+        Icons.restaurant_rounded,
+        color: AppTheme.primaryGold,
+        size: 30,
+      ),
     );
   }
-  
+
   Widget _buildStoryFallback() {
     return Container(
       color: AppTheme.primaryGold.withValues(alpha: 0.1),
-      child: const Icon(Icons.history_edu_rounded, color: AppTheme.primaryGold, size: 24),
+      child: const Icon(
+        Icons.history_edu_rounded,
+        color: AppTheme.primaryGold,
+        size: 24,
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import '../utils/app_theme.dart';
 import 'customer_home_screen.dart';
 import 'chef_home_screen.dart';
 import 'rider_home_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final UserRole selectedRole;
@@ -29,9 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter your name')));
       return;
     }
 
@@ -52,6 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
         case UserRole.rider:
           home = const RiderHomeScreen();
           break;
+        case UserRole.admin:
+          home = const AdminDashboardScreen();
+          break;
       }
 
       Navigator.pushAndRemoveUntil(
@@ -66,9 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-      ),
+      appBar: AppBar(backgroundColor: Colors.transparent),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -84,9 +86,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               Text(
                 'Complete Your Profile',
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      fontSize: 28,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.displayLarge?.copyWith(fontSize: 28),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),

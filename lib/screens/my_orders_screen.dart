@@ -31,11 +31,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       case OrderStatus.pending:
         return Colors.orange;
       case OrderStatus.accepted:
+      case OrderStatus.cooking:
+      case OrderStatus.ready:
+      case OrderStatus.pickedUp:
         return Colors.blue;
-      case OrderStatus.rejected:
-        return Colors.red;
+      case OrderStatus.delivered:
       case OrderStatus.completed:
         return Colors.green;
+      case OrderStatus.rejected:
+      case OrderStatus.canceled:
+        return Colors.red;
     }
   }
 
@@ -45,10 +50,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         return 'Pending';
       case OrderStatus.accepted:
         return 'Accepted';
-      case OrderStatus.rejected:
-        return 'Rejected';
+      case OrderStatus.cooking:
+        return 'Cooking';
+      case OrderStatus.ready:
+        return 'Ready';
+      case OrderStatus.pickedUp:
+        return 'Picked Up';
+      case OrderStatus.delivered:
+        return 'Delivered';
       case OrderStatus.completed:
         return 'Completed';
+      case OrderStatus.rejected:
+        return 'Rejected';
+      case OrderStatus.canceled:
+        return 'Canceled';
     }
   }
 
@@ -56,11 +71,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('My Orders'),
-      ),
+      appBar: AppBar(title: const Text('My Orders')),
       body: ValueListenableBuilder(
-        valueListenable: Hive.box<OrderModel>(AppConstants.orderBox).listenable(),
+        valueListenable: Hive.box<OrderModel>(
+          AppConstants.orderBox,
+        ).listenable(),
         builder: (context, Box<OrderModel> box, _) {
           final orders = _getCustomerOrders();
 
@@ -72,7 +87,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   Icon(
                     Icons.shopping_bag_outlined,
                     size: 80,
-                    color: AppTheme.mutedSaffron.withOpacity(0.5),
+                    color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -122,7 +137,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             : const Icon(Icons.image),
                       ),
                       const SizedBox(width: 12),
-                      
+
                       // Order Details
                       Expanded(
                         child: Column(
@@ -141,7 +156,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             Text(
                               'Quantity: ${order.quantity}',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: Colors.black.withValues(alpha: 0.5),
                                 fontSize: 14,
                               ),
                             ),
@@ -155,7 +170,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            
+
                             // Status Badge
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -163,7 +178,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(order.status).withOpacity(0.2),
+                                color: _getStatusColor(
+                                  order.status,
+                                ).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: _getStatusColor(order.status),

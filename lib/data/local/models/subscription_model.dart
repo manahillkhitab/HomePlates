@@ -9,7 +9,7 @@ enum SubscriptionTier {
   @HiveField(1)
   silver,
   @HiveField(2)
-  gold
+  gold,
 }
 
 @HiveType(typeId: 19)

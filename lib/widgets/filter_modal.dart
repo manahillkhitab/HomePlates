@@ -34,7 +34,6 @@ class _FilterModalState extends State<FilterModal> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -51,7 +50,10 @@ class _FilterModalState extends State<FilterModal> {
             children: [
               Text(
                 'Filter Dishes',
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w900),
+                style: GoogleFonts.outfit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.close_rounded),
@@ -60,7 +62,7 @@ class _FilterModalState extends State<FilterModal> {
             ],
           ),
           const SizedBox(height: 32),
-          
+
           _buildLabel('Price Range (Rs.)'),
           const SizedBox(height: 8),
           RangeSlider(
@@ -76,7 +78,7 @@ class _FilterModalState extends State<FilterModal> {
             ),
             onChanged: (values) => setState(() => _priceRange = values),
           ),
-          
+
           const SizedBox(height: 32),
           _buildLabel('Minimum Rating'),
           const SizedBox(height: 16),
@@ -87,12 +89,19 @@ class _FilterModalState extends State<FilterModal> {
               return GestureDetector(
                 onTap: () => setState(() => _minRating = star.toDouble()),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.primaryGold : Colors.transparent,
+                    color: isSelected
+                        ? AppTheme.primaryGold
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? AppTheme.primaryGold : AppTheme.primaryGold.withValues(alpha: 0.2),
+                      color: isSelected
+                          ? AppTheme.primaryGold
+                          : AppTheme.primaryGold.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -101,14 +110,18 @@ class _FilterModalState extends State<FilterModal> {
                         '$star',
                         style: GoogleFonts.outfit(
                           fontWeight: FontWeight.w800,
-                          color: isSelected ? AppTheme.warmCharcoal : AppTheme.primaryGold,
+                          color: isSelected
+                              ? AppTheme.warmCharcoal
+                              : AppTheme.primaryGold,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.star_rounded,
                         size: 14,
-                        color: isSelected ? AppTheme.warmCharcoal : AppTheme.primaryGold,
+                        color: isSelected
+                            ? AppTheme.warmCharcoal
+                            : AppTheme.primaryGold,
                       ),
                     ],
                   ),
@@ -116,28 +129,36 @@ class _FilterModalState extends State<FilterModal> {
               );
             }).toList(),
           ),
-          
+
           const SizedBox(height: 32),
           _buildLabel('Sort By'),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
-            children: ['Newest', 'Price: Low to High', 'Price: High to Low', 'Top Rated'].map((sort) {
-              final isSelected = _sortBy == sort;
-              return ChoiceChip(
-                label: Text(sort),
-                selected: isSelected,
-                onSelected: (val) => setState(() => _sortBy = sort),
-                selectedColor: AppTheme.primaryGold,
-                labelStyle: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  color: isSelected ? AppTheme.warmCharcoal : theme.colorScheme.onSurface,
-                ),
-              );
-            }).toList(),
+            children:
+                [
+                  'Newest',
+                  'Price: Low to High',
+                  'Price: High to Low',
+                  'Top Rated',
+                ].map((sort) {
+                  final isSelected = _sortBy == sort;
+                  return ChoiceChip(
+                    label: Text(sort),
+                    selected: isSelected,
+                    onSelected: (val) => setState(() => _sortBy = sort),
+                    selectedColor: AppTheme.primaryGold,
+                    labelStyle: GoogleFonts.outfit(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      color: isSelected
+                          ? AppTheme.warmCharcoal
+                          : theme.colorScheme.onSurface,
+                    ),
+                  );
+                }).toList(),
           ),
-          
+
           const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
@@ -151,12 +172,17 @@ class _FilterModalState extends State<FilterModal> {
                 backgroundColor: AppTheme.primaryGold,
                 foregroundColor: AppTheme.warmCharcoal,
                 padding: const EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 elevation: 0,
               ),
               child: Text(
                 'APPLY FILTERS',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
               ),
             ),
           ),

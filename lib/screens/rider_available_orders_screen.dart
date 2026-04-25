@@ -17,11 +17,12 @@ class RiderAvailableOrdersScreen extends ConsumerStatefulWidget {
   const RiderAvailableOrdersScreen({super.key});
 
   @override
-  ConsumerState<RiderAvailableOrdersScreen> createState() => _RiderAvailableOrdersScreenState();
+  ConsumerState<RiderAvailableOrdersScreen> createState() =>
+      _RiderAvailableOrdersScreenState();
 }
 
-class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrdersScreen> {
-
+class _RiderAvailableOrdersScreenState
+    extends ConsumerState<RiderAvailableOrdersScreen> {
   @override
   void initState() {
     super.initState();
@@ -34,24 +35,36 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
     final user = ref.read(authProvider).value;
     if (user == null) return;
 
-    final error = await ref.read(orderProvider.notifier).claimOrder(order, user.id);
+    final error = await ref
+        .read(orderProvider.notifier)
+        .claimOrder(order, user.id);
 
     if (error == null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Delivery mission accepted!', style: AppTextStyles.bodyMedium(color: Colors.white)),
+          content: Text(
+            'Delivery mission accepted!',
+            style: AppTextStyles.bodyMedium(color: Colors.white),
+          ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
         ),
       );
     } else if (error != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error, style: AppTextStyles.bodyMedium(color: Colors.white)),
+          content: Text(
+            error,
+            style: AppTextStyles.bodyMedium(color: Colors.white),
+          ),
           backgroundColor: Colors.orangeAccent,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
         ),
       );
     }
@@ -84,14 +97,20 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
           ),
           asyncOrders.when(
             loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+              child: Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryGold),
+              ),
             ),
             error: (error, stack) => SliverFillRemaining(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 64),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: Colors.redAccent,
+                      size: 64,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Failed to sync orders',
@@ -105,25 +124,26 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
               if (ordersList.isEmpty) {
                 return SliverFillRemaining(
                   child: EmptyState(
-                      icon: Icons.moped_rounded, 
-                      message: 'The road is quiet', 
-                      actionLabel: '',
-                      onAction: () {},
-                      subtitle: 'New orders will appear here when ready for pickup. Keep your app open!',
+                    icon: Icons.moped_rounded,
+                    message: 'The road is quiet',
+                    actionLabel: '',
+                    onAction: () {},
+                    subtitle:
+                        'New orders will appear here when ready for pickup. Keep your app open!',
                   ),
                 );
               }
 
               return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final order = ordersList[index];
-                      return _buildOrderCard(order, isDark, theme);
-                    },
-                    childCount: ordersList.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final order = ordersList[index];
+                    return _buildOrderCard(order, isDark, theme);
+                  }, childCount: ordersList.length),
                 ),
               );
             },
@@ -138,7 +158,7 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
       return Image.network(
         path,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => 
+        errorBuilder: (context, error, stackTrace) =>
             const Icon(Icons.broken_image, color: AppTheme.primaryGold),
       );
     } else {
@@ -147,7 +167,7 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
         return Image.file(
           file,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => 
+          errorBuilder: (context, error, stackTrace) =>
               const Icon(Icons.broken_image, color: AppTheme.primaryGold),
         );
       }
@@ -179,13 +199,19 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                   ),
                   child: order.dishImagePath.isNotEmpty
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                           child: _buildImage(order.dishImagePath),
                         )
-                      : const Icon(Icons.restaurant, color: AppTheme.primaryGold, size: 32),
+                      : const Icon(
+                          Icons.restaurant,
+                          color: AppTheme.primaryGold,
+                          size: 32,
+                        ),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                
+
                 // Details
                 Expanded(
                   child: Column(
@@ -193,7 +219,9 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                     children: [
                       Text(
                         order.dishName,
-                        style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal).copyWith(letterSpacing: -0.5),
+                        style: AppTextStyles.headingSmall(
+                          color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                        ).copyWith(letterSpacing: -0.5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -201,20 +229,31 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                              color: AppTheme.primaryGold.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
                             child: Text(
                               '${order.quantity} ITEMS',
-                              style: AppTextStyles.labelSmall(color: AppTheme.primaryGold).copyWith(fontWeight: FontWeight.w900),
+                              style: AppTextStyles.labelSmall(
+                                color: AppTheme.primaryGold,
+                              ).copyWith(fontWeight: FontWeight.w900),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             'Rs. ${order.totalPrice.toStringAsFixed(0)}',
-                            style: AppTextStyles.headingMedium(color: AppTheme.primaryGold),
+                            style: AppTextStyles.headingMedium(
+                              color: AppTheme.primaryGold,
+                            ),
                           ),
                         ],
                       ),
@@ -224,7 +263,7 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
               ],
             ),
           ),
-          
+
           if (order.deliveryAddress != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -235,19 +274,25 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                   Expanded(
                     child: Text(
                       'To: Customer (Address Hidden)',
-                      style: AppTextStyles.bodyMedium(color: Colors.grey).copyWith(fontStyle: FontStyle.italic),
+                      style: AppTextStyles.bodyMedium(
+                        color: Colors.grey,
+                      ).copyWith(fontStyle: FontStyle.italic),
                     ),
                   ),
                 ],
               ),
             ),
-          
+
           // Pickup Details & Action
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey[50],
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppTheme.radiusLg)),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.02)
+                  : Colors.grey[50],
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(AppTheme.radiusLg),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,12 +300,22 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.location_on_rounded, size: 18, color: Colors.greenAccent),
+                      const Icon(
+                        Icons.location_on_rounded,
+                        size: 18,
+                        color: Colors.greenAccent,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'PICKUP: ${order.chefName ?? "Home Kitchen"}',
-                          style: AppTextStyles.labelMedium(color: Colors.greenAccent).copyWith(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                          style:
+                              AppTextStyles.labelMedium(
+                                color: Colors.greenAccent,
+                              ).copyWith(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -271,10 +326,12 @@ class _RiderAvailableOrdersScreenState extends ConsumerState<RiderAvailableOrder
                   child: AppButton.primary(
                     text: 'ACCEPT',
                     onPressed: () => _pickUpOrder(order),
-                    backgroundColor: Colors.greenAccent, 
+                    backgroundColor: Colors.greenAccent,
                     height: 44,
                     isExpanded: false,
-                    textStyle: AppTextStyles.labelLarge(color: AppTheme.warmCharcoal).copyWith(fontWeight: FontWeight.bold, letterSpacing: 1),
+                    textStyle: AppTextStyles.labelLarge(
+                      color: AppTheme.warmCharcoal,
+                    ).copyWith(fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                 ),
               ],

@@ -29,7 +29,7 @@ class SimpleBarChart extends StatelessWidget {
         children: sortedDates.map((date) {
           final value = data[date] ?? 0.0;
           final barHeight = (value / displayMax) * 150;
-          
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -37,7 +37,9 @@ class SimpleBarChart extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Text(
-                    value > 999 ? '${(value / 1000).toStringAsFixed(1)}k' : value.toStringAsFixed(0),
+                    value > 999
+                        ? '${(value / 1000).toStringAsFixed(1)}k'
+                        : value.toStringAsFixed(0),
                     style: GoogleFonts.outfit(
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
@@ -51,11 +53,13 @@ class SimpleBarChart extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: value > 0 ? barColor : barColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
-                  gradient: value > 0 ? LinearGradient(
-                    colors: [barColor, barColor.withValues(alpha: 0.7)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ) : null,
+                  gradient: value > 0
+                      ? LinearGradient(
+                          colors: [barColor, barColor.withValues(alpha: 0.7)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        )
+                      : null,
                 ),
               ),
               const SizedBox(height: 8),

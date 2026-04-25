@@ -4,18 +4,20 @@ import '../utils/app_theme.dart';
 
 class LegalScreen extends StatelessWidget {
   final bool showAgreeButton;
-  
+
   const LegalScreen({super.key, this.showAgreeButton = false});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Legal & Safety', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Legal & Safety',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -54,9 +56,14 @@ class LegalScreen extends StatelessWidget {
                     backgroundColor: AppTheme.primaryGold,
                     foregroundColor: AppTheme.warmCharcoal,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('I AGREE TO ALL TERMS', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'I AGREE TO ALL TERMS',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             const SizedBox(height: 40),

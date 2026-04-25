@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'promo_model.g.dart';
 
-@HiveType(typeId: 20)
+@HiveType(typeId: 27)
 class PromoModel extends HiveObject {
   @HiveField(0)
   final String id;

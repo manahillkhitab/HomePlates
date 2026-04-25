@@ -32,7 +32,7 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
           .select('*, users(name, role, email)')
           .eq('type', 'withdrawal')
           .order('created_at', ascending: false);
-      
+
       if (mounted) {
         setState(() {
           _payouts = res as List<dynamic>;
@@ -47,10 +47,15 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
 
   Future<void> _settlePayout(String txId) async {
     try {
-      await _supabase.from('transactions').update({'status': 'completed'}).eq('id', txId);
+      await _supabase
+          .from('transactions')
+          .update({'status': 'completed'})
+          .eq('id', txId);
       await _fetchPayouts();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payout marked as COMPLETED')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payout marked as COMPLETED')),
+        );
       }
     } catch (e) {
       debugPrint('Error settling payout: $e');
@@ -59,7 +64,13 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
 
   List<dynamic> get _filteredPayouts {
     if (_selectedStatus == 'all') return _payouts;
-    return _payouts.where((p) => (p['status'] as String).toLowerCase() == _selectedStatus.toLowerCase()).toList();
+    return _payouts
+        .where(
+          (p) =>
+              (p['status'] as String).toLowerCase() ==
+              _selectedStatus.toLowerCase(),
+        )
+        .toList();
   }
 
   @override
@@ -69,7 +80,10 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payout Management', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Payout Management',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -90,71 +104,125 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
           const SizedBox(height: 16),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryGold,
+                    ),
+                  )
                 : _filteredPayouts.isEmpty
-                    ? Center(child: Text('No payout requests found', style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5))))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _filteredPayouts.length,
-                        itemBuilder: (context, index) {
-                          final payout = _filteredPayouts[index];
-                          final user = payout['users'];
-                          final status = payout['status'] as String;
-                          final amount = (payout['amount'] as num).toDouble();
-                          
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            elevation: 0,
-                            color: isDark ? AppTheme.darkCard : Colors.white,
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              leading: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.primaryGold),
-                              ),
-                              title: Text(user?['name'] ?? 'Unknown User', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('${user?['role'].toString().toUpperCase()} • Rs. ${amount.toStringAsFixed(0)}'),
-                                  Text(
-                                    DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.parse(payout['created_at'])),
-                                    style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
-                                  ),
-                                ],
-                              ),
-                              trailing: status == 'pending'
-                                  ? ElevatedButton(
-                                      onPressed: () => _showSettleDialog(payout['id'], amount, user?['name']),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                                        minimumSize: const Size(80, 32),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                      ),
-                                      child: const Text('SETTLE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                    )
-                                  : Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        'SETTLED',
-                                        style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                            ),
-                          );
-                        },
+                ? Center(
+                    child: Text(
+                      'No payout requests found',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredPayouts.length,
+                    itemBuilder: (context, index) {
+                      final payout = _filteredPayouts[index];
+                      final user = payout['users'];
+                      final status = payout['status'] as String;
+                      final amount = (payout['amount'] as num).toDouble();
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                        color: isDark ? AppTheme.darkCard : Colors.white,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryGold.withValues(
+                                alpha: 0.1,
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.account_balance_wallet_rounded,
+                              color: AppTheme.primaryGold,
+                            ),
+                          ),
+                          title: Text(
+                            user?['name'] ?? 'Unknown User',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${user?['role'].toString().toUpperCase()} • Rs. ${amount.toStringAsFixed(0)}',
+                              ),
+                              Text(
+                                DateFormat(
+                                  'MMM dd, yyyy • hh:mm a',
+                                ).format(DateTime.parse(payout['created_at'])),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: status == 'pending'
+                              ? ElevatedButton(
+                                  onPressed: () => _showSettleDialog(
+                                    payout['id'],
+                                    amount,
+                                    user?['name'],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 0,
+                                    ),
+                                    minimumSize: const Size(80, 32),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'SETTLE',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    'SETTLED',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -182,7 +250,9 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Settlement'),
-        content: Text('Are you sure you have transferred Rs. ${amount.toStringAsFixed(0)} to $userName? This action marks the request as COMPLETED and cannot be undone.'),
+        content: Text(
+          'Are you sure you have transferred Rs. ${amount.toStringAsFixed(0)} to $userName? This action marks the request as COMPLETED and cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -193,7 +263,10 @@ class _AdminPayoutsScreenState extends State<AdminPayoutsScreen> {
               Navigator.pop(context);
               _settlePayout(txId);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('MARK AS SETTLED'),
           ),
         ],

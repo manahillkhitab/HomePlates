@@ -6,7 +6,9 @@ class SearchQueryNotifier extends Notifier<String> {
   void update(String value) => state = value;
 }
 
-final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
+  SearchQueryNotifier.new,
+);
 
 class CategoryNotifier extends Notifier<String> {
   @override
@@ -14,4 +16,6 @@ class CategoryNotifier extends Notifier<String> {
   void update(String value) => state = value;
 }
 
-final categoryProvider = NotifierProvider<CategoryNotifier, String>(CategoryNotifier.new);
+final categoryProvider = NotifierProvider<CategoryNotifier, String>(
+  CategoryNotifier.new,
+);

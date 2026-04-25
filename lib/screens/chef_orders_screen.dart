@@ -18,16 +18,14 @@ import '../widgets/state_wrapper.dart';
 
 class ChefOrdersScreen extends ConsumerStatefulWidget {
   const ChefOrdersScreen({super.key});
-// ... (imports are top level, but replace tool needs context. I will do 2 chunks)
-// Chunk 1: Imports
-
+  // ... (imports are top level, but replace tool needs context. I will do 2 chunks)
+  // Chunk 1: Imports
 
   @override
   ConsumerState<ChefOrdersScreen> createState() => _ChefOrdersScreenState();
 }
 
 class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -39,17 +37,23 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
     });
   }
 
-  Future<void> _updateStatus(OrderModel order, OrderStatus newStatus, {String? reason}) async {
+  Future<void> _updateStatus(
+    OrderModel order,
+    OrderStatus newStatus, {
+    String? reason,
+  }) async {
     final user = ref.read(authProvider).value;
     if (user == null) return;
 
-    final success = await ref.read(orderProvider.notifier).updateOrderStatus(
-      order: order, 
-      newStatus: newStatus,
-      currentUser: user,
-      cancelReason: reason,
-    );
-    
+    final success = await ref
+        .read(orderProvider.notifier)
+        .updateOrderStatus(
+          order: order,
+          newStatus: newStatus,
+          currentUser: user,
+          cancelReason: reason,
+        );
+
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Order marked as ${newStatus.name}')),
@@ -59,7 +63,7 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
 
   Future<void> _handleReject(OrderModel order) async {
     final reasonController = TextEditingController();
-    
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -68,7 +72,10 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Please provide a reason for the customer:', style: AppTextStyles.bodyMedium()),
+            Text(
+              'Please provide a reason for the customer:',
+              style: AppTextStyles.bodyMedium(),
+            ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: reasonController,
@@ -77,7 +84,10 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                 hintStyle: AppTextStyles.bodyMedium(color: Colors.grey),
                 filled: true,
                 fillColor: AppTheme.primaryGold.withValues(alpha: 0.05),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  borderSide: BorderSide.none,
+                ),
               ),
               maxLines: 2,
             ),
@@ -86,7 +96,10 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('CANCEL', style: AppTextStyles.labelLarge(color: Colors.grey)),
+            child: Text(
+              'CANCEL',
+              style: AppTextStyles.labelLarge(color: Colors.grey),
+            ),
           ),
           AppButton.primary(
             text: 'REJECT',
@@ -101,7 +114,11 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
 
     if (confirm == true) {
       final reason = reasonController.text.trim();
-      _updateStatus(order, OrderStatus.rejected, reason: reason.isEmpty ? 'Not specified by chef' : reason);
+      _updateStatus(
+        order,
+        OrderStatus.rejected,
+        reason: reason.isEmpty ? 'Not specified by chef' : reason,
+      );
     }
   }
 
@@ -123,7 +140,10 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
             elevation: 0,
             backgroundColor: theme.scaffoldBackgroundColor,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              titlePadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
               title: Text(
                 'Kitchen Queue',
                 style: AppTextStyles.displayMedium(color: AppTheme.primaryGold),
@@ -133,14 +153,20 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
           ),
           asyncOrders.when(
             loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+              child: Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryGold),
+              ),
             ),
             error: (error, stack) => SliverFillRemaining(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 64),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: Colors.redAccent,
+                      size: 64,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Oops! Something went wrong',
@@ -160,33 +186,40 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
               ),
             ),
             data: (ordersList) {
-              final sortedOrders = ordersList.toList()..sort((a, b) {
-                if (a.status == OrderStatus.pending && b.status != OrderStatus.pending) return -1;
-                if (a.status != OrderStatus.pending && b.status == OrderStatus.pending) return 1;
-                return b.createdAt.compareTo(a.createdAt);
-              });
-              
+              final sortedOrders = ordersList.toList()
+                ..sort((a, b) {
+                  if (a.status == OrderStatus.pending &&
+                      b.status != OrderStatus.pending)
+                    return -1;
+                  if (a.status != OrderStatus.pending &&
+                      b.status == OrderStatus.pending)
+                    return 1;
+                  return b.createdAt.compareTo(a.createdAt);
+                });
+
               if (sortedOrders.isEmpty) {
                 return SliverFillRemaining(
                   child: EmptyState(
-                      icon: Icons.restaurant_rounded, 
-                      message: 'No active orders', 
-                      actionLabel: 'Check Menu',
-                      onAction: () => Navigator.pop(context), // Or just no action
+                    icon: Icons.restaurant_rounded,
+                    message: 'No active orders',
+                    actionLabel: 'Check Menu',
+                    onAction: () => Navigator.pop(context), // Or just no action
                   ),
                 );
               }
 
               return SliverPadding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xl),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                ),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final order = sortedOrders[index];
-                      return _buildOrderCard(order, isDark);
-                    },
-                    childCount: sortedOrders.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final order = sortedOrders[index];
+                    return _buildOrderCard(order, isDark);
+                  }, childCount: sortedOrders.length),
                 ),
               );
             },
@@ -198,15 +231,15 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
 
   Widget _buildOrderCard(OrderModel order, bool isDark) {
     final statusColor = _getStatusColor(order.status);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         border: Border.all(
-          color: order.status == OrderStatus.pending 
-              ? AppTheme.primaryGold.withValues(alpha: 0.5) 
+          color: order.status == OrderStatus.pending
+              ? AppTheme.primaryGold.withValues(alpha: 0.5)
               : Colors.transparent,
           width: 2,
         ),
@@ -225,35 +258,49 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    image: order.dishImagePath.isNotEmpty 
-                      ? DecorationImage(
-                          image: (order.dishImagePath.startsWith('http') 
-                            ? CachedNetworkImageProvider(order.dishImagePath) 
-                            : FileImage(File(order.dishImagePath))) as ImageProvider,
-                          fit: BoxFit.cover,
-                          onError: (_, __) {}, 
-                        )
-                      : null,
+                    image: order.dishImagePath.isNotEmpty
+                        ? DecorationImage(
+                            image:
+                                (order.dishImagePath.startsWith('http')
+                                        ? CachedNetworkImageProvider(
+                                            order.dishImagePath,
+                                          )
+                                        : FileImage(File(order.dishImagePath)))
+                                    as ImageProvider,
+                            fit: BoxFit.cover,
+                            onError: (_, __) {},
+                          )
+                        : null,
                   ),
-                  child: order.dishImagePath.isEmpty || order.dishImagePath == ''
+                  child:
+                      order.dishImagePath.isEmpty || order.dishImagePath == ''
                       ? Center(
                           child: Text(
                             '${order.quantity}x',
-                            style: AppTextStyles.headingMedium(color: statusColor),
+                            style: AppTextStyles.headingMedium(
+                              color: statusColor,
+                            ),
                           ),
                         )
                       : Align(
                           alignment: Alignment.bottomRight,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             margin: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color: Colors.black54,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
                             child: Text(
                               '${order.quantity}x',
-                              style: AppTextStyles.labelSmall(color: Colors.white),
+                              style: AppTextStyles.labelSmall(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -265,11 +312,14 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                     children: [
                       Text(
                         order.dishName,
-                        style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal).copyWith(letterSpacing: -0.5),
+                        style: AppTextStyles.headingSmall(
+                          color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                        ).copyWith(letterSpacing: -0.5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (order.customerName != null && order.customerName!.isNotEmpty) ...[
+                      if (order.customerName != null &&
+                          order.customerName!.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           'For ${order.customerName}',
@@ -282,23 +332,34 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: statusColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               order.status.name.toUpperCase(),
-                              style: AppTextStyles.labelSmall(color: statusColor).copyWith(fontWeight: FontWeight.w900),
+                              style: AppTextStyles.labelSmall(
+                                color: statusColor,
+                              ).copyWith(fontWeight: FontWeight.w900),
                             ),
                           ),
                           const SizedBox(width: 10),
-                          Icon(Icons.access_time_rounded, size: 12, color: isDark ? Colors.white38 : Colors.black38),
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 12,
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               timeago.format(order.createdAt),
-                              style: AppTextStyles.caption(color: isDark ? Colors.white38 : Colors.black38),
+                              style: AppTextStyles.caption(
+                                color: isDark ? Colors.white38 : Colors.black38,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -310,18 +371,24 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                 ),
                 Text(
                   'Rs. ${order.totalPrice.toStringAsFixed(0)}',
-                  style: AppTextStyles.headingMedium(color: AppTheme.primaryGold),
+                  style: AppTextStyles.headingMedium(
+                    color: AppTheme.primaryGold,
+                  ),
                 ),
               ],
             ),
           ),
-          
+
           if (order.deliveryAddress != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -332,12 +399,16 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                 ],
               ),
             ),
-          
+
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey[50],
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(AppTheme.cardRadius)),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.03)
+                  : Colors.grey[50],
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(AppTheme.cardRadius),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -360,14 +431,24 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending: return AppTheme.primaryGold;
-      case OrderStatus.accepted: return Colors.blueAccent;
-      case OrderStatus.cooking: return Colors.orangeAccent;
-      case OrderStatus.ready: return Colors.greenAccent;
-      case OrderStatus.pickedUp: return Colors.purpleAccent;
-      case OrderStatus.delivered: return Colors.green;
-      case OrderStatus.rejected: return Colors.redAccent;
-      case OrderStatus.canceled: return Colors.grey;
+      case OrderStatus.pending:
+        return AppTheme.primaryGold;
+      case OrderStatus.accepted:
+        return Colors.blueAccent;
+      case OrderStatus.cooking:
+        return Colors.orangeAccent;
+      case OrderStatus.ready:
+        return Colors.greenAccent;
+      case OrderStatus.pickedUp:
+        return Colors.purpleAccent;
+      case OrderStatus.delivered:
+        return Colors.green;
+      case OrderStatus.rejected:
+        return Colors.redAccent;
+      case OrderStatus.canceled:
+        return Colors.grey;
+      case OrderStatus.completed:
+        return Colors.green;
     }
   }
 
@@ -378,7 +459,10 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
           TextButton(
             onPressed: () => _handleReject(order),
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: Text('Reject', style: AppTextStyles.labelLarge(color: Colors.redAccent)),
+            child: Text(
+              'Reject',
+              style: AppTextStyles.labelLarge(color: Colors.redAccent),
+            ),
           ),
           const SizedBox(width: 8),
           AppButton.primary(
@@ -386,7 +470,9 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
             onPressed: () => _updateStatus(order, OrderStatus.accepted),
             height: 36,
             isExpanded: false,
-            textStyle: AppTextStyles.labelLarge(color: AppTheme.warmCharcoal).copyWith(fontWeight: FontWeight.bold),
+            textStyle: AppTextStyles.labelLarge(
+              color: AppTheme.warmCharcoal,
+            ).copyWith(fontWeight: FontWeight.bold),
           ),
         ];
       case OrderStatus.accepted:
@@ -398,7 +484,9 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
             height: 36,
             isExpanded: false,
             icon: Icons.outdoor_grill_rounded,
-             textStyle: AppTextStyles.labelLarge(color: Colors.white).copyWith(fontWeight: FontWeight.bold),
+            textStyle: AppTextStyles.labelLarge(
+              color: Colors.white,
+            ).copyWith(fontWeight: FontWeight.bold),
           ),
         ];
       case OrderStatus.cooking:
@@ -407,7 +495,9 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
             text: 'Mark Ready',
             onPressed: () => _updateStatus(order, OrderStatus.ready),
             backgroundColor: Colors.greenAccent,
-             textStyle: AppTextStyles.labelLarge(color: AppTheme.warmCharcoal).copyWith(fontWeight: FontWeight.bold),
+            textStyle: AppTextStyles.labelLarge(
+              color: AppTheme.warmCharcoal,
+            ).copyWith(fontWeight: FontWeight.bold),
             height: 36,
             isExpanded: false,
             icon: Icons.check_circle_rounded,
@@ -420,7 +510,7 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
               const Icon(Icons.timer_rounded, size: 14, color: Colors.grey),
               const SizedBox(width: 6),
               Text(
-                'Waiting for Rider', 
+                'Waiting for Rider',
                 style: AppTextStyles.labelMedium(color: Colors.grey),
               ),
             ],
@@ -430,10 +520,14 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
         return [
           Row(
             children: [
-              const Icon(Icons.moped_rounded, size: 14, color: Colors.purpleAccent),
+              const Icon(
+                Icons.moped_rounded,
+                size: 14,
+                color: Colors.purpleAccent,
+              ),
               const SizedBox(width: 6),
               Text(
-                'With Rider', 
+                'With Rider',
                 style: AppTextStyles.labelMedium(color: Colors.purpleAccent),
               ),
             ],
@@ -442,11 +536,12 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
       case OrderStatus.rejected:
       case OrderStatus.canceled:
       case OrderStatus.delivered:
+      case OrderStatus.completed:
         return [
-           Text(
-             'Completed', 
-             style: AppTextStyles.labelMedium(color: Colors.grey),
-           ),
+          Text(
+            'Completed',
+            style: AppTextStyles.labelMedium(color: Colors.grey),
+          ),
         ];
     }
   }

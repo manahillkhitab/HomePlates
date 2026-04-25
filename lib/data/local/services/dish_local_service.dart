@@ -11,6 +11,10 @@ class DishLocalService {
     await _dishBox.put(dish.id, dish);
   }
 
+  List<DishModel> getAllDishes() {
+    return _dishBox.values.toList();
+  }
+
   // Get all dishes for a specific chef
   List<DishModel> getDishesForChef(String chefId) {
     return _dishBox.values.where((dish) => dish.chefId == chefId).toList();

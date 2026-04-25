@@ -4,7 +4,8 @@ import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 
 class SupabaseStorageService {
-  static final SupabaseStorageService _instance = SupabaseStorageService._internal();
+  static final SupabaseStorageService _instance =
+      SupabaseStorageService._internal();
   factory SupabaseStorageService() => _instance;
   SupabaseStorageService._internal();
 
@@ -22,11 +23,13 @@ class SupabaseStorageService {
     try {
       if (!file.existsSync()) return null;
 
-      await _supabase.storage.from(bucket).upload(
-        remotePath,
-        file,
-        fileOptions: const FileOptions(upsert: true),
-      );
+      await _supabase.storage
+          .from(bucket)
+          .upload(
+            remotePath,
+            file,
+            fileOptions: const FileOptions(upsert: true),
+          );
 
       return _supabase.storage.from(bucket).getPublicUrl(remotePath);
     } catch (e) {

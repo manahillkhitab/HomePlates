@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/order_model.dart';
+import '../models/enums.dart';
 import '../../../utils/constants.dart';
 
 class OrderLocalService {
@@ -21,17 +22,59 @@ class OrderLocalService {
 
   // Get all orders for a specific chef (read-only for now)
   List<OrderModel> getOrdersForChef(String chefId) {
-    return _orderBox.values
-        .where((order) => order.chefId == chefId)
-        .toList()
+    return _orderBox.values.where((order) => order.chefId == chefId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Latest first
   }
 
+  List<OrderModel> getRiderActiveOrders(String riderId) {
+    return _orderBox.values
+        .where(
+          (order) =>
+              order.riderId == riderId &&
+              (order.status == OrderStatus.pickedUp ||
+                  order.status == OrderStatus.cooking ||
+                  order.status == OrderStatus.accepted),
+        )
+        .toList();
+  }
+
+  List<OrderModel> getAvailableOrders() {
+    return _orderBox.values
+        .where(
+          (order) => order.status == OrderStatus.ready && order.riderId == null,
+        )
+        .toList();
+  }
+
+  List<OrderModel> getRiderHistoryOrders(String riderId) {
+    return _orderBox.values
+        .where(
+          (order) =>
+              order.riderId == riderId && order.status == OrderStatus.delivered,
+        )
+        .toList();
+  }
+
   // Update order status
-  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
+  Future<void> updateOrderStatus(
+    String orderId,
+    OrderStatus newStatus, {
+    String? riderId,
+    String? cancelReason,
+    RefundStatus? refundStatus,
+  }) async {
     final order = _orderBox.get(orderId);
     if (order != null) {
-      await _orderBox.put(orderId, order.copyWith(status: newStatus));
+      await _orderBox.put(
+        orderId,
+        order.copyWith(
+          status: newStatus,
+          riderId: riderId,
+          cancelReason: cancelReason,
+          refundStatus: refundStatus,
+          updatedAt: DateTime.now(),
+        ),
+      );
     }
   }
 

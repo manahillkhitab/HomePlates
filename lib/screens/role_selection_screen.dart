@@ -4,7 +4,8 @@ import '../utils/app_theme.dart';
 import 'login_screen.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
-  const RoleSelectionScreen({super.key});
+  final UserModel? user;
+  const RoleSelectionScreen({super.key, this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +19,18 @@ class RoleSelectionScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Join HomePlates as...',
+                user != null ? 'Switch Mode' : 'Join HomePlates as...',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                'Select your role to continue',
+                user != null
+                    ? 'Select your target role'
+                    : 'Select your role to continue',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -37,7 +40,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 description: 'Order healthy, homemade food',
                 icon: Icons.restaurant,
                 role: UserRole.customer,
-                onTap: () => _navigateToLogin(context, UserRole.customer),
+                onTap: () => _handleRoleSelected(context, UserRole.customer),
               ),
               const SizedBox(height: 16),
               _RoleCard(
@@ -45,7 +48,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 description: 'Share your recipes and earn',
                 icon: Icons.outdoor_grill,
                 role: UserRole.chef,
-                onTap: () => _navigateToLogin(context, UserRole.chef),
+                onTap: () => _handleRoleSelected(context, UserRole.chef),
               ),
               const SizedBox(height: 16),
               _RoleCard(
@@ -53,7 +56,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 description: 'Deliver joy and earn on the go',
                 icon: Icons.delivery_dining,
                 role: UserRole.rider,
-                onTap: () => _navigateToLogin(context, UserRole.rider),
+                onTap: () => _handleRoleSelected(context, UserRole.rider),
               ),
             ],
           ),
@@ -62,13 +65,17 @@ class RoleSelectionScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToLogin(BuildContext context, UserRole role) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LoginScreen(selectedRole: role),
-      ),
-    );
+  void _handleRoleSelected(BuildContext context, UserRole role) {
+    if (user != null) {
+      Navigator.pop(context, role);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(selectedRole: role),
+        ),
+      );
+    }
   }
 }
 
@@ -98,12 +105,12 @@ class _RoleCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.mutedSaffron.withOpacity(0.1),
+            color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -114,14 +121,10 @@ class _RoleCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.mutedSaffron.withOpacity(0.1),
+                color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: AppTheme.mutedSaffron,
-                size: 32,
-              ),
+              child: Icon(icon, color: AppTheme.mutedSaffron, size: 32),
             ),
             const SizedBox(width: 20),
             Expanded(
@@ -139,18 +142,12 @@ class _RoleCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.lightText,
-                    ),
+                    style: TextStyle(fontSize: 14, color: AppTheme.lightText),
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: AppTheme.warmCharcoal,
-            ),
+            const Icon(Icons.chevron_right, color: AppTheme.warmCharcoal),
           ],
         ),
       ),

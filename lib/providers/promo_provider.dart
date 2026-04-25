@@ -4,7 +4,9 @@ import '../data/local/services/promo_local_service.dart';
 
 final promoServiceProvider = Provider((ref) => PromoLocalService());
 
-final promoProvider = AsyncNotifierProvider<PromoNotifier, List<PromoModel>>(PromoNotifier.new);
+final promoProvider = AsyncNotifierProvider<PromoNotifier, List<PromoModel>>(
+  PromoNotifier.new,
+);
 
 class PromoNotifier extends AsyncNotifier<List<PromoModel>> {
   @override
@@ -24,15 +26,15 @@ class PromoNotifier extends AsyncNotifier<List<PromoModel>> {
 
   Future<PromoModel?> validatePromo(String code, double orderAmount) async {
     final promo = ref.read(promoServiceProvider).getPromoByCode(code);
-    
+
     if (promo == null) return null;
-    
+
     // Validate expiry
     if (promo.expiryDate.isBefore(DateTime.now())) return null;
-    
+
     // Validate min amount
     if (orderAmount < promo.minOrderAmount) return null;
-    
+
     // Validate usage
     if (promo.usedCount >= promo.usageLimit) return null;
 

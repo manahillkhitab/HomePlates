@@ -5,8 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/order_provider.dart';
-
 import '../utils/app_theme.dart';
 import '../utils/app_text_styles.dart';
 import '../utils/app_spacing.dart';
@@ -15,8 +13,6 @@ import '../utils/eta_service.dart';
 import '../widgets/app_button.dart';
 import '../widgets/state_wrapper.dart';
 import '../data/local/models/cart_summary.dart';
-import '../data/local/models/order_model.dart';
-import 'my_orders_screen.dart';
 import 'checkout_review_screen.dart';
 
 class CartScreen extends ConsumerWidget {
@@ -35,7 +31,10 @@ class CartScreen extends ConsumerWidget {
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppTheme.warmCharcoal),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: isDark ? Colors.white : AppTheme.warmCharcoal,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -50,7 +49,10 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
                     physics: const BouncingScrollPhysics(),
                     itemCount: cart.items.length,
                     itemBuilder: (context, index) {
@@ -76,7 +78,12 @@ class CartScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCartItem(BuildContext context, WidgetRef ref, dynamic item, bool isDark) {
+  Widget _buildCartItem(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic item,
+    bool isDark,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -91,16 +98,22 @@ class CartScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             child: item.imagePath != null && item.imagePath!.isNotEmpty
                 ? (item.imagePath!.startsWith('http')
-                    ? Image.network(
-                        item.imagePath!, 
-                        width: 70, height: 70, fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildItemImageFallback(item.name),
-                      )
-                    : Image.file(
-                        File(item.imagePath!), 
-                        width: 70, height: 70, fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildItemImageFallback(item.name),
-                      ))
+                      ? Image.network(
+                          item.imagePath!,
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildItemImageFallback(item.name),
+                        )
+                      : Image.file(
+                          File(item.imagePath!),
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildItemImageFallback(item.name),
+                        ))
                 : _buildItemImageFallback(item.name),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -110,7 +123,9 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Text(
                   item.name,
-                  style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal),
+                  style: AppTextStyles.headingSmall(
+                    color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -119,7 +134,8 @@ class CartScreen extends ConsumerWidget {
                   'Rs. ${item.price.toStringAsFixed(0)}',
                   style: AppTextStyles.labelLarge(color: AppTheme.primaryGold),
                 ),
-                if (item.selectedOptions != null && item.selectedOptions!.isNotEmpty)
+                if (item.selectedOptions != null &&
+                    item.selectedOptions!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Text(
@@ -131,19 +147,34 @@ class CartScreen extends ConsumerWidget {
             ),
           ),
           Container(
-             decoration: BoxDecoration(
-               color: isDark ? AppTheme.darkAccent : AppTheme.offWhite,
-               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-             ),
-             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-             child: Row(
+            decoration: BoxDecoration(
+              color: isDark ? AppTheme.darkAccent : AppTheme.offWhite,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
               children: [
-                _buildIconButton(Icons.remove, () => ref.read(cartProvider.notifier).updateQuantity(item.dishId, item.quantity - 1), isDark),
+                _buildIconButton(
+                  Icons.remove,
+                  () => ref
+                      .read(cartProvider.notifier)
+                      .updateQuantity(item.dishId, item.quantity - 1),
+                  isDark,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('${item.quantity}', style: AppTextStyles.bodyLarge(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    '${item.quantity}',
+                    style: AppTextStyles.bodyLarge(fontWeight: FontWeight.bold),
+                  ),
                 ),
-                _buildIconButton(Icons.add, () => ref.read(cartProvider.notifier).updateQuantity(item.dishId, item.quantity + 1), isDark),
+                _buildIconButton(
+                  Icons.add,
+                  () => ref
+                      .read(cartProvider.notifier)
+                      .updateQuantity(item.dishId, item.quantity + 1),
+                  isDark,
+                ),
               ],
             ),
           ),
@@ -158,17 +189,29 @@ class CartScreen extends ConsumerWidget {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(4),
-        child: Icon(icon, size: 18, color: isDark ? Colors.white : AppTheme.warmCharcoal),
+        child: Icon(
+          icon,
+          size: 18,
+          color: isDark ? Colors.white : AppTheme.warmCharcoal,
+        ),
       ),
     );
   }
 
-  Widget _buildCheckoutSummary(BuildContext context, WidgetRef ref, CartSummary cart, dynamic user, bool isDark) {
+  Widget _buildCheckoutSummary(
+    BuildContext context,
+    WidgetRef ref,
+    CartSummary cart,
+    dynamic user,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppTheme.radiusXl),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -183,7 +226,10 @@ class CartScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total Amount', style: AppTextStyles.bodyMedium(color: Colors.grey)),
+              Text(
+                'Total Amount',
+                style: AppTextStyles.bodyMedium(color: Colors.grey),
+              ),
               Text(
                 'Rs. ${cart.total.toStringAsFixed(0)}',
                 style: AppTextStyles.displayMedium(color: AppTheme.primaryGold),
@@ -196,7 +242,9 @@ class CartScreen extends ConsumerWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CheckoutReviewScreen(cart: cart)),
+                MaterialPageRoute(
+                  builder: (context) => CheckoutReviewScreen(cart: cart),
+                ),
               );
             },
             isExpanded: true,
@@ -207,9 +255,17 @@ class CartScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleSection(BuildContext context, WidgetRef ref, CartSummary cart, bool isDark) {
+  Widget _buildScheduleSection(
+    BuildContext context,
+    WidgetRef ref,
+    CartSummary cart,
+    bool isDark,
+  ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
@@ -229,24 +285,33 @@ class CartScreen extends ConsumerWidget {
                   style: AppTextStyles.labelMedium(color: Colors.grey),
                 ),
                 Text(
-                  cart.scheduledTime == null 
-                      ? 'ASAP (~${ETAService.calculateCartETA(cart)})' 
+                  cart.scheduledTime == null
+                      ? 'ASAP (~${ETAService.calculateCartETA(cart)})'
                       : DateFormat('MMM d, h:mm a').format(cart.scheduledTime!),
-                  style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal),
+                  style: AppTextStyles.headingSmall(
+                    color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                  ),
                 ),
               ],
             ),
           ),
           TextButton(
             onPressed: () => _pickDateTime(context, ref, cart),
-            child: Text('CHANGE', style: AppTextStyles.labelLarge(color: AppTheme.primaryGold)),
+            child: Text(
+              'CHANGE',
+              style: AppTextStyles.labelLarge(color: AppTheme.primaryGold),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _pickDateTime(BuildContext context, WidgetRef ref, CartSummary cart) async {
+  Future<void> _pickDateTime(
+    BuildContext context,
+    WidgetRef ref,
+    CartSummary cart,
+  ) async {
     final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
@@ -258,15 +323,25 @@ class CartScreen extends ConsumerWidget {
     if (date != null && context.mounted) {
       final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(now.add(const Duration(minutes: 45))),
+        initialTime: TimeOfDay.fromDateTime(
+          now.add(const Duration(minutes: 45)),
+        ),
       );
 
       if (time != null) {
-        final scheduled = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        final scheduled = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
         if (scheduled.isBefore(now.add(const Duration(minutes: 30)))) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please schedule at least 30 mins in advance')),
+              const SnackBar(
+                content: Text('Please schedule at least 30 mins in advance'),
+              ),
             );
           }
           return;
@@ -278,17 +353,24 @@ class CartScreen extends ConsumerWidget {
 
   Widget _buildItemImageFallback(String itemName) {
     String name = itemName.toLowerCase();
-    String url = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'; 
-    
-    if (name.contains('donuts')) url = 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=200&q=80';
-    else if (name.contains('pulao') || name.contains('rice')) url = 'https://images.unsplash.com/photo-1512058560566-d8b437bfb1d8?auto=format&fit=crop&w=200&q=80';
+    String url =
+        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80';
+
+    if (name.contains('donuts'))
+      url =
+          'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=200&q=80';
+    else if (name.contains('pulao') || name.contains('rice'))
+      url =
+          'https://images.unsplash.com/photo-1512058560566-d8b437bfb1d8?auto=format&fit=crop&w=200&q=80';
 
     return Image.network(
       url,
-      width: 70, height: 70,
+      width: 70,
+      height: 70,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => Container(
-        width: 70, height: 70,
+        width: 70,
+        height: 70,
         color: AppTheme.primaryGold.withValues(alpha: 0.1),
         child: const Icon(Icons.restaurant, color: AppTheme.primaryGold),
       ),

@@ -3,7 +3,6 @@ import '../data/local/models/user_model.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'home_screen.dart';
 import 'role_selection_screen.dart';
 import 'customer_home_screen.dart';
 import 'chef_home_screen.dart';
@@ -42,9 +41,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _timer = Timer(const Duration(seconds: AppConstants.splashDuration), () {
       if (mounted) {
         final user = ref.read(authProvider).value;
-        
-        Widget nextScreen;
-        
+
+        Widget nextScreen = const RoleSelectionScreen();
+
         if (user != null && user.isLoggedIn) {
           if (user.status != UserStatus.approved) {
             nextScreen = StatusMessageScreen(status: user.status);
@@ -63,8 +62,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               case UserRole.admin:
                 nextScreen = AdminDashboardScreen();
                 break;
-              default:
-                nextScreen = const RoleSelectionScreen();
             }
           }
         } else {
@@ -72,11 +69,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           bool hasSeenOnboarding = false;
           try {
             final settingsBox = Hive.box(AppConstants.settingsBox);
-            hasSeenOnboarding = settingsBox.get('hasSeenOnboarding', defaultValue: false);
+            hasSeenOnboarding = settingsBox.get(
+              'hasSeenOnboarding',
+              defaultValue: false,
+            );
           } catch (e) {
             debugPrint('Hive box not open or accessible: $e');
           }
-          
+
           if (!hasSeenOnboarding) {
             nextScreen = const OnboardingScreen();
           } else {
@@ -84,9 +84,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           }
         }
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => nextScreen),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => nextScreen));
       }
     });
   }
@@ -111,7 +111,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 10,
                 ),
-                itemBuilder: (context, index) => const Icon(Icons.restaurant_menu, size: 20),
+                itemBuilder: (context, index) =>
+                    const Icon(Icons.restaurant_menu, size: 20),
               ),
             ),
           ),
@@ -121,28 +122,28 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               children: [
                 Hero(
                   tag: 'app_logo',
-                    child: TweenAnimationBuilder(
-                      tween: Tween<double>(begin: 0.8, end: 1.0),
-                      duration: const Duration(milliseconds: 1000),
-                      curve: Curves.elasticOut,
-                      builder: (context, double value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.restaurant_menu_rounded,
-                              size: 80,
-                              color: AppTheme.primaryGold,
-                            ),
+                  child: TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0.8, end: 1.0),
+                    duration: const Duration(milliseconds: 1000),
+                    curve: Curves.elasticOut,
+                    builder: (context, double value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryGold.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
                           ),
-                        );
-                      },
-                    ),
+                          child: const Icon(
+                            Icons.restaurant_menu_rounded,
+                            size: 80,
+                            color: AppTheme.primaryGold,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 32),
                 RichText(
@@ -173,7 +174,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -202,7 +206,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 height: 40,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryGold.withValues(alpha: 0.3)),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryGold.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
             ),

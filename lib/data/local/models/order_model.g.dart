@@ -29,13 +29,28 @@ class OrderModelAdapter extends TypeAdapter<OrderModel> {
       status: fields[9] as OrderStatus,
       createdAt: fields[10] as DateTime,
       isSynced: fields[11] as bool,
+      items: (fields[12] as List).cast<OrderItem>(),
+      scheduledTime: fields[13] as DateTime?,
+      paymentMethod: fields[14] as PaymentMethod,
+      notes: fields[15] as String?,
+      deliveryAddress: fields[16] as String,
+      chefName: fields[17] as String,
+      chefAddress: fields[18] as String,
+      chefPhone: fields[19] as String,
+      customerName: fields[20] as String,
+      customerPhone: fields[21] as String,
+      riderId: fields[22] as String?,
+      cancelReason: fields[23] as String?,
+      refundStatus: fields[24] as RefundStatus?,
+      updatedAt: fields[25] as DateTime?,
+      deliveryFee: fields[26] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, OrderModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(27)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +74,37 @@ class OrderModelAdapter extends TypeAdapter<OrderModel> {
       ..writeByte(10)
       ..write(obj.createdAt)
       ..writeByte(11)
-      ..write(obj.isSynced);
+      ..write(obj.isSynced)
+      ..writeByte(12)
+      ..write(obj.items)
+      ..writeByte(13)
+      ..write(obj.scheduledTime)
+      ..writeByte(14)
+      ..write(obj.paymentMethod)
+      ..writeByte(15)
+      ..write(obj.notes)
+      ..writeByte(16)
+      ..write(obj.deliveryAddress)
+      ..writeByte(17)
+      ..write(obj.chefName)
+      ..writeByte(18)
+      ..write(obj.chefAddress)
+      ..writeByte(19)
+      ..write(obj.chefPhone)
+      ..writeByte(20)
+      ..write(obj.customerName)
+      ..writeByte(21)
+      ..write(obj.customerPhone)
+      ..writeByte(22)
+      ..write(obj.riderId)
+      ..writeByte(23)
+      ..write(obj.cancelReason)
+      ..writeByte(24)
+      ..write(obj.refundStatus)
+      ..writeByte(25)
+      ..write(obj.updatedAt)
+      ..writeByte(26)
+      ..write(obj.deliveryFee);
   }
 
   @override
@@ -85,8 +130,18 @@ class OrderStatusAdapter extends TypeAdapter<OrderStatus> {
       case 1:
         return OrderStatus.accepted;
       case 2:
-        return OrderStatus.rejected;
+        return OrderStatus.cooking;
       case 3:
+        return OrderStatus.ready;
+      case 4:
+        return OrderStatus.pickedUp;
+      case 5:
+        return OrderStatus.delivered;
+      case 6:
+        return OrderStatus.rejected;
+      case 7:
+        return OrderStatus.canceled;
+      case 8:
         return OrderStatus.completed;
       default:
         return OrderStatus.pending;
@@ -102,11 +157,26 @@ class OrderStatusAdapter extends TypeAdapter<OrderStatus> {
       case OrderStatus.accepted:
         writer.writeByte(1);
         break;
-      case OrderStatus.rejected:
+      case OrderStatus.cooking:
         writer.writeByte(2);
         break;
-      case OrderStatus.completed:
+      case OrderStatus.ready:
         writer.writeByte(3);
+        break;
+      case OrderStatus.pickedUp:
+        writer.writeByte(4);
+        break;
+      case OrderStatus.delivered:
+        writer.writeByte(5);
+        break;
+      case OrderStatus.rejected:
+        writer.writeByte(6);
+        break;
+      case OrderStatus.canceled:
+        writer.writeByte(7);
+        break;
+      case OrderStatus.completed:
+        writer.writeByte(8);
         break;
     }
   }

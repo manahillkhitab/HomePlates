@@ -11,18 +11,14 @@ class BrowseDishesScreen extends StatelessWidget {
 
   List<DishModel> _getAvailableDishes() {
     final dishBox = Hive.box<DishModel>(AppConstants.dishBox);
-    return dishBox.values
-        .where((dish) => dish.isAvailable)
-        .toList();
+    return dishBox.values.where((dish) => dish.isAvailable).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Browse Dishes'),
-      ),
+      appBar: AppBar(title: const Text('Browse Dishes')),
       body: ValueListenableBuilder(
         valueListenable: Hive.box<DishModel>(AppConstants.dishBox).listenable(),
         builder: (context, Box<DishModel> box, _) {
@@ -36,7 +32,7 @@ class BrowseDishesScreen extends StatelessWidget {
                   Icon(
                     Icons.restaurant,
                     size: 80,
-                    color: AppTheme.mutedSaffron.withOpacity(0.5),
+                    color: AppTheme.mutedSaffron.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -89,7 +85,10 @@ class BrowseDishesScreen extends StatelessWidget {
                                   File(dish.imagePath),
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(Icons.broken_image, size: 50);
+                                    return const Icon(
+                                      Icons.broken_image,
+                                      size: 50,
+                                    );
                                   },
                                 )
                               : const Icon(Icons.image, size: 50),

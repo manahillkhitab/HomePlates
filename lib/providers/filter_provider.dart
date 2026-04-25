@@ -28,7 +28,11 @@ class FilterState {
 class FilterNotifier extends StateNotifier<FilterState> {
   FilterNotifier() : super(FilterState());
 
-  void updateFilters({RangeValues? priceRange, double? minRating, String? sortBy}) {
+  void updateFilters({
+    RangeValues? priceRange,
+    double? minRating,
+    String? sortBy,
+  }) {
     state = state.copyWith(
       priceRange: priceRange,
       minRating: minRating,
@@ -41,4 +45,6 @@ class FilterNotifier extends StateNotifier<FilterState> {
   }
 }
 
-final filterProvider = StateNotifierProvider<FilterNotifier, FilterState>((ref) => FilterNotifier());
+final filterProvider = StateNotifierProvider<FilterNotifier, FilterState>(
+  (ref) => FilterNotifier(),
+);

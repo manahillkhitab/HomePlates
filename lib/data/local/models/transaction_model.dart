@@ -6,33 +6,33 @@ part 'transaction_model.g.dart';
 enum TransactionType {
   @HiveField(0)
   earning,
-  
+
   @HiveField(1)
   withdrawal,
-  
+
   @HiveField(2)
   refund, // Money back to user (e.g. customer)
-  
+
   @HiveField(3)
   penalty, // Deduction from user (e.g. chef)
-  
+
   @HiveField(4)
   payment, // Payment for order (customer)
 
   @HiveField(5)
-  topup // Add money to wallet (customer)
+  topup, // Add money to wallet (customer)
 }
 
 @HiveType(typeId: 11)
 enum TransactionStatus {
   @HiveField(0)
   pending,
-  
+
   @HiveField(1)
   completed,
-  
+
   @HiveField(2)
-  rejected
+  rejected,
 }
 
 @HiveType(typeId: 12)

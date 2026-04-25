@@ -27,16 +27,25 @@ class WalletState {
   Map<DateTime, double> getWeeklyEarnings() {
     final Map<DateTime, double> weeklyData = {};
     final now = DateTime.now();
-    
+
     // Initialize last 7 days with 0
     for (int i = 0; i < 7; i++) {
-      final date = DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+      final date = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
       weeklyData[date] = 0;
     }
 
     for (var tx in transactions) {
-      if (tx.type == TransactionType.earning && tx.status == TransactionStatus.completed) {
-        final date = DateTime(tx.createdAt.year, tx.createdAt.month, tx.createdAt.day);
+      if (tx.type == TransactionType.earning &&
+          tx.status == TransactionStatus.completed) {
+        final date = DateTime(
+          tx.createdAt.year,
+          tx.createdAt.month,
+          tx.createdAt.day,
+        );
         if (weeklyData.containsKey(date)) {
           weeklyData[date] = (weeklyData[date] ?? 0) + tx.amount;
         }
@@ -46,9 +55,13 @@ class WalletState {
   }
 }
 
-final walletProvider = StateNotifierProvider.family<WalletNotifier, WalletState, String>((ref, userId) {
-  return WalletNotifier(ref.watch(transactionService), userId);
-});
+final walletProvider =
+    StateNotifierProvider.family<WalletNotifier, WalletState, String>((
+      ref,
+      userId,
+    ) {
+      return WalletNotifier(ref.watch(transactionService), userId);
+    });
 
 class WalletNotifier extends StateNotifier<WalletState> {
   final TransactionLocalService _service;
@@ -70,10 +83,14 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
     for (var tx in transactions) {
       if (tx.status == TransactionStatus.completed) {
-        if (tx.type == TransactionType.earning || tx.type == TransactionType.refund || tx.type == TransactionType.topup) {
+        if (tx.type == TransactionType.earning ||
+            tx.type == TransactionType.refund ||
+            tx.type == TransactionType.topup) {
           balance += tx.amount;
           if (tx.type == TransactionType.earning) total += tx.amount;
-        } else if (tx.type == TransactionType.withdrawal || tx.type == TransactionType.penalty || tx.type == TransactionType.payment) {
+        } else if (tx.type == TransactionType.withdrawal ||
+            tx.type == TransactionType.penalty ||
+            tx.type == TransactionType.payment) {
           balance -= tx.amount;
         }
       } else if (tx.status == TransactionStatus.pending) {

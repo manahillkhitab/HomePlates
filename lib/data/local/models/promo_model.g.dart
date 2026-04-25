@@ -8,7 +8,7 @@ part of 'promo_model.dart';
 
 class PromoModelAdapter extends TypeAdapter<PromoModel> {
   @override
-  final int typeId = 20;
+  final int typeId = 27;
 
   @override
   PromoModel read(BinaryReader reader) {

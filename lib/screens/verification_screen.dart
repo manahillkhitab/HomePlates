@@ -24,7 +24,10 @@ class VerificationScreen extends ConsumerStatefulWidget {
 }
 
 class _VerificationScreenState extends ConsumerState<VerificationScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isLoading = false;
   bool _isResending = false;
@@ -114,10 +117,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
@@ -231,7 +231,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(AppTheme.primaryGold),
+                          valueColor: AlwaysStoppedAnimation(
+                            AppTheme.primaryGold,
+                          ),
                         ),
                       )
                     : const Text(

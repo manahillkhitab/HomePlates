@@ -3,7 +3,7 @@ import '../models/transaction_model.dart';
 import '../../../utils/constants.dart';
 
 class TransactionLocalService {
-  Box<TransactionModel> get _transactionBox => 
+  Box<TransactionModel> get _transactionBox =>
       Hive.box<TransactionModel>(AppConstants.transactionBox);
 
   // Add a new transaction
@@ -13,14 +13,15 @@ class TransactionLocalService {
 
   // Get transactions for a user
   List<TransactionModel> getTransactionsForUser(String userId) {
-    return _transactionBox.values
-        .where((t) => t.userId == userId)
-        .toList()
+    return _transactionBox.values.where((t) => t.userId == userId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   // Update transaction status (e.g., for admin payout approval)
-  Future<void> updateTransactionStatus(String id, TransactionStatus status) async {
+  Future<void> updateTransactionStatus(
+    String id,
+    TransactionStatus status,
+  ) async {
     final t = _transactionBox.get(id);
     if (t != null) {
       await _transactionBox.put(id, t.copyWith(status: status));

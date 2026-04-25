@@ -36,7 +36,9 @@ class StateWrapper<T> extends StatelessWidget {
         return data(value);
       },
       loading: () => loading?.call() ?? const _DefaultLoadingState(),
-      error: (err, stack) => error?.call(err, stack) ?? _DefaultErrorState(error: err, stackTrace: stack),
+      error: (err, stack) =>
+          error?.call(err, stack) ??
+          _DefaultErrorState(error: err, stackTrace: stack),
     );
   }
 
@@ -71,7 +73,7 @@ class _DefaultErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -124,6 +126,7 @@ class _DefaultErrorState extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
+  final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
 
@@ -131,14 +134,13 @@ class EmptyState extends StatelessWidget {
     super.key,
     required this.icon,
     required this.message,
+    this.subtitle,
     this.actionLabel,
     this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -151,11 +153,7 @@ class EmptyState extends StatelessWidget {
                 color: AppTheme.primaryGold.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: AppTheme.primaryGold,
-              ),
+              child: Icon(icon, size: 64, color: AppTheme.primaryGold),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
@@ -163,6 +161,14 @@ class EmptyState extends StatelessWidget {
               style: AppTextStyles.headingMedium(),
               textAlign: TextAlign.center,
             ),
+            if (subtitle != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                subtitle!,
+                style: AppTextStyles.bodyMedium(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.lg),
               ElevatedButton.icon(

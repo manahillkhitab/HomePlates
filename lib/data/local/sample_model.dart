@@ -32,7 +32,8 @@ class SampleModel extends HiveObject {
     return SampleModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: 'Welcome to HomePlates!',
-      description: 'This is a sample data stored in Hive (offline database). The app is working correctly!',
+      description:
+          'This is a sample data stored in Hive (offline database). The app is working correctly!',
       createdAt: DateTime.now(),
       isSynced: false,
     );

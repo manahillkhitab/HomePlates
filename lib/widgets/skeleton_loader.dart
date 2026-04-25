@@ -14,15 +14,20 @@ class SkeletonLoader extends StatefulWidget {
     this.count = 3,
   });
 
-  const SkeletonLoader.card({super.key, this.count = 3}) : type = SkeletonType.card;
-  const SkeletonLoader.list({super.key, this.count = 5}) : type = SkeletonType.list;
-  const SkeletonLoader.detail({super.key}) : type = SkeletonType.detail, count = 1;
+  const SkeletonLoader.card({super.key, this.count = 3})
+    : type = SkeletonType.card;
+  const SkeletonLoader.list({super.key, this.count = 5})
+    : type = SkeletonType.list;
+  const SkeletonLoader.detail({super.key})
+    : type = SkeletonType.detail,
+      count = 1;
 
   @override
   State<SkeletonLoader> createState() => _SkeletonLoaderState();
 }
 
-class _SkeletonLoaderState extends State<SkeletonLoader> with SingleTickerProviderStateMixin {
+class _SkeletonLoaderState extends State<SkeletonLoader>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -57,7 +62,8 @@ class _SkeletonLoaderState extends State<SkeletonLoader> with SingleTickerProvid
             mainAxisSpacing: AppSpacing.md,
           ),
           itemCount: widget.count,
-          itemBuilder: (context, index) => _SkeletonCard(animation: _animation, isDark: isDark),
+          itemBuilder: (context, index) =>
+              _SkeletonCard(animation: _animation, isDark: isDark),
         );
 
       case SkeletonType.list:
@@ -102,8 +108,12 @@ class _SkeletonCard extends StatelessWidget {
               Container(
                 height: 140,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: animation.value * 0.2,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.radiusLg),
+                  ),
                 ),
               ),
               Padding(
@@ -116,7 +126,8 @@ class _SkeletonCard extends StatelessWidget {
                       height: 16,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: animation.value * 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -126,7 +137,8 @@ class _SkeletonCard extends StatelessWidget {
                       height: 12,
                       width: 100,
                       decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.15),
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: animation.value * 0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -166,7 +178,9 @@ class _SkeletonListItem extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: animation.value * 0.2,
+                  ),
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 ),
               ),
@@ -178,7 +192,8 @@ class _SkeletonListItem extends StatelessWidget {
                     Container(
                       height: 16,
                       decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: animation.value * 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -187,7 +202,8 @@ class _SkeletonListItem extends StatelessWidget {
                       height: 12,
                       width: 150,
                       decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.15),
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: animation.value * 0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -222,7 +238,9 @@ class _SkeletonDetail extends StatelessWidget {
               Container(
                 height: 250,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: animation.value * 0.2,
+                  ),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
@@ -231,7 +249,9 @@ class _SkeletonDetail extends StatelessWidget {
               Container(
                 height: 24,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.2),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: animation.value * 0.2,
+                  ),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -241,7 +261,9 @@ class _SkeletonDetail extends StatelessWidget {
                 height: 16,
                 width: 200,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.15),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: animation.value * 0.15,
+                  ),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -255,7 +277,9 @@ class _SkeletonDetail extends StatelessWidget {
                     height: 14,
                     width: index == 3 ? 150 : double.infinity,
                     decoration: BoxDecoration(
-                      color: (isDark ? Colors.white : Colors.black).withValues(alpha: animation.value * 0.15),
+                      color: (isDark ? Colors.white : Colors.black).withValues(
+                        alpha: animation.value * 0.15,
+                      ),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),

@@ -19,17 +19,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingContent> _contents = [
     OnboardingContent(
       title: 'Discover Homemade',
-      description: 'Find authentic, home-cooked meals prepared with love by chefs in your neighborhood.',
+      description:
+          'Find authentic, home-cooked meals prepared with love by chefs in your neighborhood.',
       icon: Icons.soup_kitchen_rounded,
     ),
     OnboardingContent(
       title: 'Real-time Tracking',
-      description: 'Track your order from the kitchen to your doorstep with live GPS updates and chat.',
+      description:
+          'Track your order from the kitchen to your doorstep with live GPS updates and chat.',
       icon: Icons.location_on_rounded,
     ),
     OnboardingContent(
       title: 'Support Local Chefs',
-      description: 'Empower home chefs and enjoy unique, healthy, and affordable meal options.',
+      description:
+          'Empower home chefs and enjoy unique, healthy, and affordable meal options.',
       icon: Icons.favorite_rounded,
     ),
   ];
@@ -97,7 +100,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                            color: isDark
+                                ? Colors.white
+                                : AppTheme.warmCharcoal,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -140,7 +145,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const Spacer(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -163,7 +171,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           }
                         },
                         child: Text(
-                          _currentPage == _contents.length - 1 ? 'Get Started' : 'Next',
+                          _currentPage == _contents.length - 1
+                              ? 'Get Started'
+                              : 'Next',
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

@@ -13,6 +13,8 @@ import '../models/transaction_model.dart';
 import '../models/notification_model.dart';
 import '../../../utils/constants.dart';
 import 'supabase_storage_service.dart';
+import '../models/enums.dart';
+import '../models/order_item.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._internal();
@@ -22,7 +24,7 @@ class SyncService {
   final _supabase = Supabase.instance.client;
   final _connectivity = Connectivity();
   final _storageService = SupabaseStorageService();
-  
+
   Timer? _syncTimer;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
@@ -33,8 +35,11 @@ class SyncService {
 
   /// Check if device is online
   Future<bool> get isOnline async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    return !connectivityResult.contains(ConnectivityResult.none);
+    final dynamic connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult is List) {
+      return !connectivityResult.contains(ConnectivityResult.none);
+    }
+    return connectivityResult != ConnectivityResult.none;
   }
 
   /// Start automatic synchronization
@@ -44,17 +49,26 @@ class SyncService {
     // Cancel any existing subscriptions/timers to prevent resource leaks
     // when startAutoSync is called multiple times.
     stopAutoSync();
-    
+
     // 1. Initial Sync
     syncAll();
 
     // 2. Listen to Connectivity Changes
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((results) {
-      if (!results.contains(ConnectivityResult.none)) {
-        debugPrint('Network connected. Triggering sync...');
-        syncAll();
-      }
-    });
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen((dynamic results) {
+              bool isConnected = false;
+              if (results is List) {
+                isConnected = !results.contains(ConnectivityResult.none);
+              } else {
+                isConnected = results != ConnectivityResult.none;
+              }
+
+              if (isConnected) {
+                debugPrint('Network connected. Triggering sync...');
+                syncAll();
+              }
+            })
+            as StreamSubscription<List<ConnectivityResult>>?;
 
     // 3. Periodic Sync (every 15 minutes) as fallback/routine
     _syncTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
@@ -150,12 +164,17 @@ class SyncService {
           final localFile = File(dish.imagePath);
           if (await localFile.exists()) {
             cloudUrl = await _storageService.uploadFile(
-              file: localFile, 
-              bucket: 'dish_images', 
-              remotePath: _storageService.generateFileName(dish.imagePath, 'dish_${dish.id}')
+              file: localFile,
+              bucket: 'dish_images',
+              remotePath: _storageService.generateFileName(
+                dish.imagePath,
+                'dish_${dish.id}',
+              ),
             );
           } else {
-            debugPrint('⚠️ Local image not found for dish ${dish.id}: ${dish.imagePath}');
+            debugPrint(
+              '⚠️ Local image not found for dish ${dish.id}: ${dish.imagePath}',
+            );
           }
         }
 
@@ -174,7 +193,10 @@ class SyncService {
         });
 
         if (cloudUrl != null) {
-          await box.put(dish.id, dish.copyWith(imagePath: cloudUrl, isSynced: true));
+          await box.put(
+            dish.id,
+            dish.copyWith(imagePath: cloudUrl, isSynced: true),
+          );
         }
       } catch (e) {
         debugPrint('Error syncing dish ${dish.id}: $e');
@@ -185,7 +207,10 @@ class SyncService {
     final userId = _supabase.auth.currentUser?.id;
     if (userId != null) {
       try {
-        final remoteDishesBase = await _supabase.from('dishes').select().eq('chef_id', userId);
+        final remoteDishesBase = await _supabase
+            .from('dishes')
+            .select()
+            .eq('chef_id', userId);
         for (var dData in remoteDishesBase) {
           if (!box.containsKey(dData['id'])) {
             final remoteDish = DishModel.fromJson(dData);
@@ -207,14 +232,22 @@ class SyncService {
     for (var order in box.values) {
       try {
         debugPrint('📤 Syncing order ${order.id}...');
-        final remoteOrder = await _supabase.from('orders').select('updated_at').eq('id', order.id).maybeSingle();
+        final remoteOrder = await _supabase
+            .from('orders')
+            .select('updated_at')
+            .eq('id', order.id)
+            .maybeSingle();
         if (remoteOrder != null) {
           final remoteUpdatedAt = DateTime.parse(remoteOrder['updated_at']);
           if (remoteUpdatedAt.isAfter(order.updatedAt)) {
-             debugPrint('📥 Cloud is newer for ${order.id}, downloading...');
-             final fullRemote = await _supabase.from('orders').select().eq('id', order.id).single();
-             await box.put(order.id, _mapRemoteToOrder(fullRemote));
-             continue;
+            debugPrint('📥 Cloud is newer for ${order.id}, downloading...');
+            final fullRemote = await _supabase
+                .from('orders')
+                .select()
+                .eq('id', order.id)
+                .single();
+            await box.put(order.id, _mapRemoteToOrder(fullRemote));
+            continue;
           }
         }
 
@@ -232,7 +265,7 @@ class SyncService {
           'status': order.status.name,
           'rider_id': order.riderId,
           'cancel_reason': order.cancelReason,
-          'refund_status': order.refundStatus.name,
+          'refund_status': order.refundStatus?.name,
           'created_at': order.createdAt.toIso8601String(),
           'updated_at': order.updatedAt.toIso8601String(),
           'delivery_address': order.deliveryAddress,
@@ -243,15 +276,19 @@ class SyncService {
           'chef_phone': order.chefPhone,
           'customer_name': order.customerName,
           'customer_phone': order.customerPhone,
-          'items': order.items?.map((e) => {
-            'dishId': e.dishId,
-            'name': e.name,
-            'price': e.price,
-            'quantity': e.quantity,
-            'imagePath': e.imagePath,
-          }).toList() ?? [],
+          'items': order.items
+              .map(
+                (e) => {
+                  'dishId': e.dishId,
+                  'name': e.name,
+                  'price': e.price,
+                  'quantity': e.quantity,
+                  'imagePath': e.imagePath,
+                },
+              )
+              .toList(),
         });
-        
+
         if (!order.isSynced) {
           await box.put(order.id, order.copyWith(isSynced: true));
         }
@@ -264,28 +301,29 @@ class SyncService {
     // 2. Download missing history (Orders where I am Customer, Chef, or Rider)
     try {
       debugPrint('📥 Downloading order history for user $userId...');
-      
+
       // Get user role to see if we should fetch available missions
       final userBox = Hive.box<UserModel>(AppConstants.userBox);
       final currentUser = userBox.get(userId);
       final isRider = currentUser?.role == UserRole.rider;
 
-      String filter = 'customer_id.eq.$userId,chef_id.eq.$userId,rider_id.eq.$userId';
+      String filter =
+          'customer_id.eq.$userId,chef_id.eq.$userId,rider_id.eq.$userId';
       if (isRider) {
         filter += ',status.eq.ready';
       }
-      
-      final remoteHistory = await _supabase.from('orders')
-          .select()
-          .or(filter);
-      
+
+      final remoteHistory = await _supabase.from('orders').select().or(filter);
+
       for (var remoteData in remoteHistory) {
         if (!box.containsKey(remoteData['id'])) {
           final order = _mapRemoteToOrder(remoteData);
           await box.put(order.id, order);
         }
       }
-      debugPrint('✅ History/Available download complete: ${remoteHistory.length} orders found.');
+      debugPrint(
+        '✅ History/Available download complete: ${remoteHistory.length} orders found.',
+      );
     } catch (e) {
       debugPrint('❌ FAILED to download order history: $e');
     }
@@ -323,20 +361,26 @@ class SyncService {
       chefPhone: remote['chef_phone'],
       customerName: remote['customer_name'],
       customerPhone: remote['customer_phone'],
-      items: remote['items'] != null ? (remote['items'] as List).map((i) => OrderItem(
-        dishId: i['dishId'],
-        name: i['name'],
-        price: (i['price'] as num).toDouble(),
-        quantity: i['quantity'],
-        imagePath: i['imagePath'],
-      )).toList() : null,
+      items: remote['items'] != null
+          ? (remote['items'] as List)
+                .map(
+                  (i) => OrderItem(
+                    dishId: i['dishId'],
+                    name: i['name'],
+                    price: (i['price'] as num).toDouble(),
+                    quantity: i['quantity'],
+                    imagePath: i['imagePath'],
+                  ),
+                )
+                .toList()
+          : [],
     );
   }
 
   Future<void> _syncReviews() async {
     final box = Hive.box<ReviewModel>(AppConstants.reviewBox);
-     for (var review in box.values) {
-       try {
+    for (var review in box.values) {
+      try {
         await _supabase.from('reviews').upsert({
           'id': review.id,
           'customer_id': review.customerId,
@@ -368,14 +412,21 @@ class SyncService {
 
     // Download cloud to local (for status updates like 'completed' by admin)
     try {
-      final remoteTx = await _supabase.from('transactions').select().eq('user_id', userId);
+      final remoteTx = await _supabase
+          .from('transactions')
+          .select()
+          .eq('user_id', userId);
       for (var txData in remoteTx) {
         final tx = TransactionModel(
           id: txData['id'],
           userId: txData['user_id'],
           amount: (txData['amount'] as num).toDouble(),
-          type: TransactionType.values.firstWhere((e) => e.name == txData['type']),
-          status: TransactionStatus.values.firstWhere((e) => e.name == txData['status']),
+          type: TransactionType.values.firstWhere(
+            (e) => e.name == txData['type'],
+          ),
+          status: TransactionStatus.values.firstWhere(
+            (e) => e.name == txData['status'],
+          ),
           orderId: txData['order_id'],
           createdAt: DateTime.parse(txData['created_at']),
         );
@@ -403,11 +454,12 @@ class SyncService {
 
     // Download cloud to local (My Notifications)
     try {
-      final remoteNotifications = await _supabase.from('notifications')
+      final remoteNotifications = await _supabase
+          .from('notifications')
           .select()
           .eq('user_id', currentUserId)
           .order('created_at', ascending: false);
-          
+
       for (var nData in remoteNotifications) {
         final notification = NotificationModel(
           id: nData['id'],
@@ -435,7 +487,8 @@ class SyncService {
   /// FIX #6: A single timestamp is captured once and used for both the
   /// cloud update and the local Hive write, ensuring consistency.
   Future<String?> claimOrder(String orderId, String riderId) async {
-    if (!await isOnline) return 'Offline: Cannot claim order while disconnected';
+    if (!await isOnline)
+      return 'Offline: Cannot claim order while disconnected';
     debugPrint('🚀 CLAIM ATTEMPT: orderId=$orderId, riderId=$riderId');
     try {
       // FIX #6: Single timestamp for both cloud and local
@@ -444,14 +497,18 @@ class SyncService {
       // FIX #4: Atomic claim — one UPDATE with conditions instead of
       // SELECT-then-UPDATE. The .isFilter('rider_id', null) ensures we only
       // succeed if no other rider has claimed it yet.
-      final response = await _supabase.from('orders')
+      final response = await _supabase
+          .from('orders')
           .update({
             'status': OrderStatus.pickedUp.name,
             'rider_id': riderId,
             'updated_at': claimTimestamp.toIso8601String(),
           })
           .eq('id', orderId)
-          .eq('status', OrderStatus.ready.name) // Only claim orders in 'ready' status
+          .eq(
+            'status',
+            OrderStatus.ready.name,
+          ) // Only claim orders in 'ready' status
           .isFilter('rider_id', null) // Only if no rider has claimed it yet
           .select();
 
@@ -469,12 +526,15 @@ class SyncService {
       final box = Hive.box<OrderModel>(AppConstants.orderBox);
       final localOrder = box.get(orderId);
       if (localOrder != null) {
-        await box.put(orderId, localOrder.copyWith(
-          status: OrderStatus.pickedUp,
-          riderId: riderId,
-          isSynced: true,
-          updatedAt: claimTimestamp,
-        ));
+        await box.put(
+          orderId,
+          localOrder.copyWith(
+            status: OrderStatus.pickedUp,
+            riderId: riderId,
+            isSynced: true,
+            updatedAt: claimTimestamp,
+          ),
+        );
       }
       return null;
     } catch (e) {

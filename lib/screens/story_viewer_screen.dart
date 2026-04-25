@@ -20,7 +20,8 @@ class StoryViewerScreen extends ConsumerStatefulWidget {
   ConsumerState<StoryViewerScreen> createState() => _StoryViewerScreenState();
 }
 
-class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with SingleTickerProviderStateMixin {
+class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _likeController;
   late Animation<double> _likeAnimation;
   bool _isLiked = false;
@@ -60,7 +61,10 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(socialProvider);
-    final currentPost = posts.firstWhere((p) => p.id == widget.post.id, orElse: () => widget.post);
+    final currentPost = posts.firstWhere(
+      (p) => p.id == widget.post.id,
+      orElse: () => widget.post,
+    );
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -70,11 +74,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
           GestureDetector(
             onDoubleTap: _handleLike,
             onTap: () => Navigator.pop(context),
-            child: Center(
-              child: _buildMainImage(),
-            ),
+            child: Center(child: _buildMainImage()),
           ),
-          
+
           // Header Overlay
           Positioned(
             top: 50,
@@ -93,12 +95,25 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: AppTheme.primaryGold.withValues(alpha: 0.1),
-                    backgroundImage: widget.post.chefProfileImage != null && widget.post.chefProfileImage!.isNotEmpty
-                        ? CachedNetworkImageProvider(widget.post.chefProfileImage!) as ImageProvider
+                    backgroundColor: AppTheme.primaryGold.withValues(
+                      alpha: 0.1,
+                    ),
+                    backgroundImage:
+                        widget.post.chefProfileImage != null &&
+                            widget.post.chefProfileImage!.isNotEmpty
+                        ? CachedNetworkImageProvider(
+                                widget.post.chefProfileImage!,
+                              )
+                              as ImageProvider
                         : null,
-                    child: (widget.post.chefProfileImage == null || widget.post.chefProfileImage!.isEmpty)
-                        ? const Icon(Icons.person, size: 18, color: AppTheme.primaryGold)
+                    child:
+                        (widget.post.chefProfileImage == null ||
+                            widget.post.chefProfileImage!.isEmpty)
+                        ? const Icon(
+                            Icons.person,
+                            size: 18,
+                            color: AppTheme.primaryGold,
+                          )
                         : null,
                   ),
                   const SizedBox(width: 10),
@@ -108,31 +123,48 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                       children: [
                         Text(
                           widget.post.chefName ?? 'Chef',
-                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
                         ),
                         Text(
                           timeago.format(widget.post.createdAt),
-                          style: GoogleFonts.outfit(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w500),
+                          style: GoogleFonts.outfit(
+                            color: Colors.white60,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                     icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
-                     onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
             ),
           ),
-          
+
           // Bottom Content & Interaction Bar
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              padding: EdgeInsets.fromLTRB(16, 40, 16, MediaQuery.of(context).padding.bottom + 20),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                40,
+                16,
+                MediaQuery.of(context).padding.bottom + 20,
+              ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.transparent, Colors.black87],
@@ -156,7 +188,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                         ),
                       ),
                     ),
-                  
+
                   Row(
                     children: [
                       // Like & Count
@@ -166,8 +198,12 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                             scale: _likeAnimation,
                             child: IconButton(
                               icon: Icon(
-                                _isLiked ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                                color: _isLiked ? Colors.redAccent : Colors.white,
+                                _isLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_outline_rounded,
+                                color: _isLiked
+                                    ? Colors.redAccent
+                                    : Colors.white,
                                 size: 28,
                               ),
                               onPressed: _handleLike,
@@ -175,12 +211,16 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                           ),
                           Text(
                             '${currentPost.likes}',
-                            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(width: 8),
-                      
+
                       // Message Input
                       Expanded(
                         child: Container(
@@ -188,30 +228,47 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(25),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
                           ),
                           alignment: Alignment.center,
                           child: TextField(
                             controller: _commentController,
-                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal),
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.normal,
+                            ),
                             cursorColor: AppTheme.primaryGold,
                             decoration: InputDecoration(
                               hintText: 'Send message...',
-                              hintStyle: GoogleFonts.outfit(color: Colors.white60, fontSize: 14),
+                              hintStyle: GoogleFonts.outfit(
+                                color: Colors.white60,
+                                fontSize: 14,
+                              ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
                               isDense: true,
                             ),
                             onSubmitted: (val) => _sendMessage(val),
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(width: 8),
 
                       // Send Icon
                       IconButton(
-                        icon: const Icon(Icons.send_rounded, color: Colors.white, size: 28),
+                        icon: const Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                         onPressed: () => _sendMessage(_commentController.text),
                       ),
                     ],
@@ -230,16 +287,21 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
     if (val.trim().isNotEmpty) {
       final currentUser = ref.read(authProvider).value;
       if (currentUser != null) {
-        final conversationId = getConversationId(currentUser.id, widget.post.chefId);
-        await ref.read(chatProvider(conversationId).notifier).sendMessage(
-          senderId: currentUser.id,
-          receiverId: widget.post.chefId,
-          text: val.trim(),
+        final conversationId = getConversationId(
+          currentUser.id,
+          widget.post.chefId,
         );
+        await ref
+            .read(chatProvider(conversationId).notifier)
+            .sendMessage(
+              senderId: currentUser.id,
+              receiverId: widget.post.chefId,
+              text: val.trim(),
+            );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Message sent!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Message sent!')));
         }
       }
       _commentController.clear();
@@ -255,7 +317,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
         fit: BoxFit.contain,
         width: double.infinity,
         height: double.infinity,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryGold),
+        ),
         errorWidget: (context, url, error) => _buildFallbackImage(),
       );
     } else {
@@ -276,7 +340,11 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> with Sing
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.history_edu_rounded, color: AppTheme.primaryGold, size: 64),
+            const Icon(
+              Icons.history_edu_rounded,
+              color: AppTheme.primaryGold,
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
               'Kitchen Story from ${widget.post.chefName ?? "Chef"}',

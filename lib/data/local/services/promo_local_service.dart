@@ -25,10 +25,13 @@ class PromoLocalService {
   Future<void> updatePromoUsage(String promoId) async {
     final promo = _promoBox.get(promoId);
     if (promo != null) {
-      await _promoBox.put(promoId, promo.copyWith(
-        usedCount: promo.usedCount + 1,
-        isActive: (promo.usedCount + 1) < promo.usageLimit,
-      ));
+      await _promoBox.put(
+        promoId,
+        promo.copyWith(
+          usedCount: promo.usedCount + 1,
+          isActive: (promo.usedCount + 1) < promo.usageLimit,
+        ),
+      );
     }
   }
 

@@ -3,22 +3,21 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../data/local/models/message_model.dart';
 import '../utils/constants.dart';
 
-final chatProvider = StateNotifierProvider.family<ChatNotifier, List<MessageModel>, String>(
-  (ref, conversationId) => ChatNotifier(conversationId),
-);
+final chatProvider =
+    StateNotifierProvider.family<ChatNotifier, List<MessageModel>, String>(
+      (ref, conversationId) => ChatNotifier(conversationId),
+    );
 
 class ChatNotifier extends StateNotifier<List<MessageModel>> {
   final String conversationId;
-  
+
   ChatNotifier(this.conversationId) : super([]) {
     _loadMessages();
   }
 
   void _loadMessages() {
     final box = Hive.box<MessageModel>(AppConstants.messageBox);
-    final messages = box.values
-        .where((m) => _belongsToConversation(m))
-        .toList()
+    final messages = box.values.where((m) => _belongsToConversation(m)).toList()
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     state = messages;
   }
@@ -29,7 +28,7 @@ class ChatNotifier extends StateNotifier<List<MessageModel>> {
     final user1 = parts[0];
     final user2 = parts[1];
     return (message.senderId == user1 && message.receiverId == user2) ||
-           (message.senderId == user2 && message.receiverId == user1);
+        (message.senderId == user2 && message.receiverId == user1);
   }
 
   Future<void> sendMessage({

@@ -14,7 +14,12 @@ class DishCard extends ConsumerWidget {
   final VoidCallback? onTap;
   final bool showStats;
 
-  const DishCard({super.key, required this.dish, this.onTap, this.showStats = false});
+  const DishCard({
+    super.key,
+    required this.dish,
+    this.onTap,
+    this.showStats = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,19 +30,23 @@ class DishCard extends ConsumerWidget {
     final eta = ETAService.calculateETA(dish);
 
     return GestureDetector(
-      onTap: onTap ?? () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => DishDetailScreen(dish: dish)),
-        );
-      },
+      onTap:
+          onTap ??
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DishDetailScreen(dish: dish),
+              ),
+            );
+          },
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -50,19 +59,21 @@ class DishCard extends ConsumerWidget {
             children: [
               // 1. Full Background Image
               dish.imagePath.isNotEmpty
-                  ? (dish.imagePath.startsWith('http') 
-                      ? Image.network(
-                          dish.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildImageFallback(dish),
-                        )
-                      : Image.file(
-                          File(dish.imagePath),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildImageFallback(dish),
-                        ))
+                  ? (dish.imagePath.startsWith('http')
+                        ? Image.network(
+                            dish.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildImageFallback(dish),
+                          )
+                        : Image.file(
+                            File(dish.imagePath),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildImageFallback(dish),
+                          ))
                   : _buildImageFallback(dish),
-                  
+
               // 2. Gradient Overlay for Readability
               Positioned.fill(
                 child: Container(
@@ -88,16 +99,26 @@ class DishCard extends ConsumerWidget {
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.timer_outlined, size: 12, color: AppTheme.primaryGold),
+                        const Icon(
+                          Icons.timer_outlined,
+                          size: 12,
+                          color: AppTheme.primaryGold,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           eta,
@@ -113,48 +134,62 @@ class DishCard extends ConsumerWidget {
                 ),
 
               // 4. Like Button OR Stats (Top Right)
-               Positioned(
+              Positioned(
                 top: 8,
                 right: 8,
-                child: showStats 
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.favorite_rounded, size: 12, color: Colors.redAccent),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${dish.likesCount}',
-                            style: GoogleFonts.outfit(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : GestureDetector(
-                      onTap: () => ref.read(likedDishesProvider.notifier).toggleLike(dish.id),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
+                child: showStats
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          shape: BoxShape.circle,
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
                         ),
-                        child: Icon(
-                          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          size: 20,
-                          color: isLiked ? Colors.redAccent : Colors.white,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.favorite_rounded,
+                              size: 12,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${dish.likesCount}',
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () => ref
+                            .read(likedDishesProvider.notifier)
+                            .toggleLike(dish.id),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isLiked
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            size: 20,
+                            color: isLiked ? Colors.redAccent : Colors.white,
+                          ),
                         ),
                       ),
-                    ),
               ),
 
               // 5. Info Content (Bottom)
@@ -176,8 +211,12 @@ class DishCard extends ConsumerWidget {
                           color: Colors.white,
                           height: 1.1,
                           shadows: [
-                            Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4, offset: Offset(0, 2)),
-                          ]
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -212,11 +251,15 @@ class DishCard extends ConsumerWidget {
                             onTap: () async {
                               if (dish.options.isEmpty) {
                                 try {
-                                  await ref.read(cartProvider.notifier).addToCart(dish, 1);
+                                  await ref
+                                      .read(cartProvider.notifier)
+                                      .addToCart(dish, 1);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Added ${dish.name} to basket! 🧺'),
+                                        content: Text(
+                                          'Added ${dish.name} to basket! 🧺',
+                                        ),
                                         duration: const Duration(seconds: 1),
                                         backgroundColor: AppTheme.primaryGold,
                                       ),
@@ -225,7 +268,14 @@ class DishCard extends ConsumerWidget {
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                                      SnackBar(
+                                        content: Text(
+                                          e.toString().replaceAll(
+                                            'Exception: ',
+                                            '',
+                                          ),
+                                        ),
+                                      ),
                                     );
                                   }
                                 }
@@ -233,7 +283,10 @@ class DishCard extends ConsumerWidget {
                                 // Go to details for options
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => DishDetailScreen(dish: dish)),
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DishDetailScreen(dish: dish),
+                                  ),
                                 );
                               }
                             },
@@ -243,7 +296,11 @@ class DishCard extends ConsumerWidget {
                                 color: AppTheme.primaryGold,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.add_rounded, color: Colors.black, size: 20),
+                              child: const Icon(
+                                Icons.add_rounded,
+                                color: Colors.black,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ],
@@ -261,16 +318,21 @@ class DishCard extends ConsumerWidget {
 
   Widget _buildImageFallback(DishModel dish) {
     String name = dish.name.toLowerCase();
-    String url = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'; // Default healthy bowl
-    
+    String url =
+        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'; // Default healthy bowl
+
     if (name.contains('donuts')) {
-      url = 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80';
+      url =
+          'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80';
     } else if (name.contains('pulao') || name.contains('rice')) {
-      url = 'https://images.unsplash.com/photo-1512058560566-d8b437bfb1d8?auto=format&fit=crop&w=400&q=80';
+      url =
+          'https://images.unsplash.com/photo-1512058560566-d8b437bfb1d8?auto=format&fit=crop&w=400&q=80';
     } else if (name.contains('burger')) {
-      url = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80';
+      url =
+          'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80';
     } else if (name.contains('pizza')) {
-      url = 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80';
+      url =
+          'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80';
     }
 
     return Image.network(

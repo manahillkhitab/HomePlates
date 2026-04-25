@@ -108,10 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   contentPadding: const EdgeInsets.all(16),
                   leading: CircleAvatar(
                     backgroundColor: AppTheme.mutedSaffron,
-                    child: const Icon(
-                      Icons.check_circle,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.check_circle, color: Colors.white),
                   ),
                   title: Text(
                     sample.title,
@@ -138,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             _formatDateTime(sample.createdAt),
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppTheme.lightText,
+                              color: Colors.black.withValues(alpha: 0.5),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -186,9 +183,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           await _controller.addSample();
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Sample data added!')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Sample data added!')));
           }
         },
         backgroundColor: AppTheme.mutedSaffron,

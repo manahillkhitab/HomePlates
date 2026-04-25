@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../providers/auth_provider.dart';
 import '../data/local/models/user_model.dart';
 import '../utils/app_theme.dart';
 import '../utils/app_text_styles.dart';
-import '../utils/app_spacing.dart';
 import '../widgets/app_button.dart';
 import 'customer_home_screen.dart';
 import 'chef_home_screen.dart';
 import 'rider_home_screen.dart';
 import 'admin_dashboard_screen.dart';
 import 'verification_screen.dart';
-
 
 class SignupScreen extends ConsumerStatefulWidget {
   final UserRole selectedRole;
@@ -30,15 +27,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   final _confirmPasswordController = TextEditingController();
   final _kitchenNameController = TextEditingController();
   final _categoriesController = TextEditingController();
   final _vehicleNumberController = TextEditingController();
-  
+
   String _selectedVehicleType = 'Bike';
   bool _termsAccepted = false;
-  
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -69,19 +66,27 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final bool completed = await ref.read(authProvider.notifier).signUp(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        phone: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
-        role: widget.selectedRole,
-        kitchenName: _kitchenNameController.text.trim(),
-        categories: _categoriesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
-        vehicleType: widget.selectedRole == UserRole.rider ? _selectedVehicleType : '',
-        vehicleNumber: _vehicleNumberController.text.trim(),
-        termsAccepted: _termsAccepted,
-      );
+      final bool completed = await ref
+          .read(authProvider.notifier)
+          .signUp(
+            name: _nameController.text.trim(),
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+            phone: _phoneController.text.trim(),
+            address: _addressController.text.trim(),
+            role: widget.selectedRole,
+            kitchenName: _kitchenNameController.text.trim(),
+            categories: _categoriesController.text
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList(),
+            vehicleType: widget.selectedRole == UserRole.rider
+                ? _selectedVehicleType
+                : '',
+            vehicleNumber: _vehicleNumberController.text.trim(),
+            termsAccepted: _termsAccepted,
+          );
 
       if (mounted) {
         if (!completed) {
@@ -99,10 +104,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           // Email confirmed immediately (Dev bypass)
           Widget home;
           switch (widget.selectedRole) {
-            case UserRole.customer: home = const CustomerHomeScreen(); break;
-            case UserRole.chef: home = const ChefHomeScreen(); break;
-            case UserRole.rider: home = const RiderHomeScreen(); break;
-            case UserRole.admin: home = AdminDashboardScreen();break;
+            case UserRole.customer:
+              home = const CustomerHomeScreen();
+              break;
+            case UserRole.chef:
+              home = const ChefHomeScreen();
+              break;
+            case UserRole.rider:
+              home = const RiderHomeScreen();
+              break;
+            case UserRole.admin:
+              home = AdminDashboardScreen();
+              break;
           }
 
           Navigator.pushAndRemoveUntil(
@@ -115,7 +128,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Signup Failed: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Signup Failed: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -133,10 +149,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         slivers: [
           SliverAppBar(
             expandedHeight: 90, // Reduced from 120
-            floating: true, pinned: true, elevation: 0,
+            floating: true,
+            pinned: true,
+            elevation: 0,
             backgroundColor: theme.scaffoldBackgroundColor,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Reduced vertical padding
+              titlePadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ), // Reduced vertical padding
               title: Text(
                 'Let\'s get started!',
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -150,17 +171,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12), // Reduced vertical padding
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 12,
+              ), // Reduced vertical padding
               child: Hero(
                 tag: 'app_logo',
                 child: Container(
                   height: 64, // Reduced from 80
-                  width: 64,  // Reduced from 80
+                  width: 64, // Reduced from 80
                   decoration: BoxDecoration(
                     color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.restaurant_menu_rounded, color: AppTheme.mutedSaffron, size: 32),
+                  child: const Icon(
+                    Icons.restaurant_menu_rounded,
+                    color: AppTheme.mutedSaffron,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
@@ -177,22 +205,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Text(
                       'Join HomePlates as a ${widget.selectedRole.name.toUpperCase()}',
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     _buildTextField(
                       controller: _nameController,
                       label: 'FULL NAME *',
                       hint: 'John Doe',
                       icon: Icons.person_outline_rounded,
                       isDark: isDark,
-                      validator: (value) => (value?.isEmpty ?? true) ? 'Name is required' : null,
+                      validator: (value) =>
+                          (value?.isEmpty ?? true) ? 'Name is required' : null,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildTextField(
                       controller: _emailController,
                       label: 'EMAIL ADDRESS *',
@@ -200,19 +231,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       icon: Icons.email_outlined,
                       isDark: isDark,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (value) => (value?.contains('@') ?? false) ? null : 'Enter a valid email',
+                      validator: (value) => (value?.contains('@') ?? false)
+                          ? null
+                          : 'Enter a valid email',
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildTextField(
                       controller: _phoneController,
-                      label: widget.selectedRole == UserRole.customer ? 'PHONE NUMBER' : 'PHONE NUMBER *',
+                      label: widget.selectedRole == UserRole.customer
+                          ? 'PHONE NUMBER'
+                          : 'PHONE NUMBER *',
                       hint: '+92 300 1234567',
                       icon: Icons.phone_android_outlined,
                       isDark: isDark,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
-                        if (widget.selectedRole != UserRole.customer && (value?.isEmpty ?? true)) {
+                        if (widget.selectedRole != UserRole.customer &&
+                            (value?.isEmpty ?? true)) {
                           return 'Phone is required for this role';
                         }
                         return null;
@@ -248,9 +284,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             padding: const EdgeInsets.only(left: 4, bottom: 8),
                             child: Text(
                               'VEHICLE TYPE',
-                              style: AppTextStyles.labelSmall(
-                                color: AppTheme.primaryGold,
-                              ).copyWith(letterSpacing: 1, fontWeight: FontWeight.w900),
+                              style:
+                                  AppTextStyles.labelSmall(
+                                    color: AppTheme.primaryGold,
+                                  ).copyWith(
+                                    letterSpacing: 1,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                             ),
                           ),
                           Container(
@@ -258,23 +298,35 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             decoration: BoxDecoration(
                               color: isDark ? AppTheme.darkCard : Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.1)),
+                              border: Border.all(
+                                color: AppTheme.primaryGold.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 value: _selectedVehicleType,
                                 isExpanded: true,
-                                icon: const Icon(Icons.arrow_drop_down, color: AppTheme.primaryGold),
-                                items: ['Bike', 'Car', 'Cycle', 'Other'].map((String value) {
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppTheme.primaryGold,
+                                ),
+                                items: ['Bike', 'Car', 'Cycle', 'Other'].map((
+                                  String value,
+                                ) {
                                   return DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(
                                       value,
-                                      style: AppTextStyles.bodyLarge().copyWith(fontWeight: FontWeight.bold),
+                                      style: AppTextStyles.bodyLarge().copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   );
                                 }).toList(),
-                                onChanged: (val) => setState(() => _selectedVehicleType = val!),
+                                onChanged: (val) =>
+                                    setState(() => _selectedVehicleType = val!),
                               ),
                             ),
                           ),
@@ -300,7 +352,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       maxLines: 2,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildTextField(
                       controller: _passwordController,
                       label: 'PASSWORD *',
@@ -310,12 +362,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       obscureText: _obscurePassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
                           color: AppTheme.primaryGold.withValues(alpha: 0.5),
                         ),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
-                      validator: (value) => (value?.length ?? 0) < 6 ? 'Min 6 characters' : null,
+                      validator: (value) =>
+                          (value?.length ?? 0) < 6 ? 'Min 6 characters' : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -328,14 +385,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       obscureText: _obscureConfirmPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          _obscureConfirmPassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
                           color: AppTheme.primaryGold.withValues(alpha: 0.5),
                         ),
-                        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                        onPressed: () => setState(
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
+                        ),
                       ),
                       validator: (value) {
-                         if (value != _passwordController.text) return 'Passwords do not match';
-                         return null;
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
                       },
                     ),
                     const SizedBox(height: 16), // Reduced from 20
@@ -345,21 +409,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         Checkbox(
                           value: _termsAccepted,
                           activeColor: AppTheme.primaryGold,
-                          onChanged: (val) => setState(() => _termsAccepted = val!),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduced click area
+                          onChanged: (val) =>
+                              setState(() => _termsAccepted = val!),
+                          materialTapTargetSize: MaterialTapTargetSize
+                              .shrinkWrap, // Reduced click area
                         ),
                         Expanded(
                           child: Text(
                             'I accept the Terms & Conditions',
                             style: AppTextStyles.caption(
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24), // Reduced from 40
-                    
+
                     AppButton.primary(
                       text: _isLoading ? 'CREATING ACCOUNT...' : 'REGISTER NOW',
                       onPressed: _isLoading ? null : _handleSignup,
@@ -368,7 +436,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       isLoading: _isLoading,
                     ),
                     const SizedBox(height: 16), // Reduced from 24
-                    
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -385,7 +453,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           ),
                           child: Text(
                             'Login',
-                            style: AppTextStyles.labelLarge(color: AppTheme.primaryGold),
+                            style: AppTextStyles.labelLarge(
+                              color: AppTheme.primaryGold,
+                            ),
                           ),
                         ),
                       ],
@@ -431,11 +501,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           keyboardType: keyboardType,
           maxLines: maxLines,
           validator: validator,
-          style: AppTextStyles.bodyLarge().copyWith(fontWeight: FontWeight.bold),
+          style: AppTextStyles.bodyLarge().copyWith(
+            fontWeight: FontWeight.bold,
+          ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: AppTextStyles.bodyMedium(color: Colors.grey),
-            prefixIcon: Icon(icon, color: AppTheme.primaryGold.withValues(alpha: 0.5)),
+            prefixIcon: Icon(
+              icon,
+              color: AppTheme.primaryGold.withValues(alpha: 0.5),
+            ),
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: isDark ? AppTheme.darkCard : Colors.white,
@@ -445,15 +520,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.1)),
+              borderSide: BorderSide(
+                color: AppTheme.primaryGold.withValues(alpha: 0.1),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppTheme.primaryGold, width: 2),
+              borderSide: const BorderSide(
+                color: AppTheme.primaryGold,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.5), width: 1),
+              borderSide: BorderSide(
+                color: Colors.red.withValues(alpha: 0.5),
+                width: 1,
+              ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

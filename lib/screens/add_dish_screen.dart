@@ -16,10 +16,10 @@ class _AddDishScreenState extends State<AddDishScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
-  
+
   final DishController _dishController = DishController();
   final AuthController _authController = AuthController();
-  
+
   File? _selectedImage;
   bool _isAvailable = true;
   bool _isLoading = false;
@@ -47,9 +47,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
     }
 
     if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an image')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select an image')));
       return;
     }
 
@@ -58,7 +58,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
     try {
       // Save image locally
       final imagePath = await _dishController.saveImageLocally(_selectedImage!);
-      
+
       if (imagePath == null) {
         throw Exception('Failed to save image');
       }
@@ -87,9 +87,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) {
@@ -102,9 +102,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Add New Dish'),
-      ),
+      appBar: AppBar(title: const Text('Add New Dish')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -120,15 +118,14 @@ class _AddDishScreenState extends State<AddDishScreen> {
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.mutedSaffron.withOpacity(0.3)),
+                    border: Border.all(
+                      color: AppTheme.mutedSaffron.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: _selectedImage != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            _selectedImage!,
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.file(_selectedImage!, fit: BoxFit.cover),
                         )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +142,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Dish Name
               TextFormField(
                 controller: _nameController,
@@ -162,7 +159,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Description
               TextFormField(
                 controller: _descriptionController,
@@ -180,7 +177,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Price
               TextFormField(
                 controller: _priceController,
@@ -189,7 +186,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
                   hintText: 'e.g., 350',
                   prefixIcon: Icon(Icons.currency_rupee),
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter price';
@@ -202,7 +201,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Availability Toggle
               SwitchListTile(
                 title: const Text('Available for orders'),
@@ -212,20 +211,20 @@ class _AddDishScreenState extends State<AddDishScreen> {
                     _isAvailable = value;
                   });
                 },
-                activeColor: AppTheme.mutedSaffron,
+                activeThumbColor: AppTheme.primaryGold,
               ),
               const SizedBox(height: 24),
-              
+
               // Save Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveDish,
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       )
                     : const Text('Save Dish'),

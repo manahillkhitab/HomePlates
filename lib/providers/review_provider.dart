@@ -1,15 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 import '../data/local/models/review_model.dart';
-import '../utils/constants.dart';
 
-final reviewProvider = AsyncNotifierProvider<ReviewNotifier, List<ReviewModel>>(ReviewNotifier.new);
+final reviewProvider = AsyncNotifierProvider<ReviewNotifier, List<ReviewModel>>(
+  ReviewNotifier.new,
+);
 
 class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
-  final _uuid = const Uuid();
-
   @override
   Future<List<ReviewModel>> build() async {
     // Initial fetch from Supabase
@@ -18,21 +16,26 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
           .from('reviews')
           .select()
           .order('created_at', ascending: false);
-      
-      return (response as List).map((data) => ReviewModel(
-        id: data['id'],
-        customerId: data['customer_id'],
-        customerName: data['customer_name'] ?? 'Customer', // Handle potential nulls
-        chefId: data['chef_id'],
-        dishId: data['dish_id'],
-        orderId: data['order_id'],
-        rating: data['rating'],
-        comment: data['comment'] ?? '',
-        createdAt: DateTime.parse(data['created_at']),
-      )).toList();
+
+      return (response as List)
+          .map(
+            (data) => ReviewModel(
+              id: data['id'],
+              customerId: data['customer_id'],
+              customerName:
+                  data['customer_name'] ?? 'Customer', // Handle potential nulls
+              chefId: data['chef_id'],
+              dishId: data['dish_id'],
+              orderId: data['order_id'],
+              rating: data['rating'],
+              comment: data['comment'] ?? '',
+              createdAt: DateTime.parse(data['created_at']),
+            ),
+          )
+          .toList();
     } catch (e) {
       // Fallback or empty on error
-      print('Review fetch error: $e');
+      debugPrint('Review fetch error: $e');
       return [];
     }
   }
@@ -80,7 +83,7 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
       state = AsyncValue.data([...?state.value, reviewModel]);
       return true;
     } catch (e) {
-      print('Add review error: $e');
+      debugPrint('Add review error: $e');
       return false;
     }
   }
@@ -95,9 +98,7 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
   // Helper: Get reviews for a specific dish (synchronous filter of state)
   List<ReviewModel> getDishReviews(String dishId) {
     final currentReviews = state.value ?? [];
-    return currentReviews
-        .where((review) => review.dishId == dishId)
-        .toList()
+    return currentReviews.where((review) => review.dishId == dishId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
@@ -105,7 +106,7 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
   double getDishRating(String dishId) {
     final reviews = getDishReviews(dishId);
     if (reviews.isEmpty) return 0.0;
-    
+
     final total = reviews.fold(0, (sum, review) => sum + review.rating);
     return total / reviews.length;
   }
@@ -113,9 +114,7 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
   // Helper: Get reviews for a specific chef (synchronous filter of state)
   List<ReviewModel> getChefReviews(String chefId) {
     final currentReviews = state.value ?? [];
-    return currentReviews
-        .where((review) => review.chefId == chefId)
-        .toList()
+    return currentReviews.where((review) => review.chefId == chefId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
@@ -123,7 +122,7 @@ class ReviewNotifier extends AsyncNotifier<List<ReviewModel>> {
   double getChefRating(String chefId) {
     final reviews = getChefReviews(chefId);
     if (reviews.isEmpty) return 0.0;
-    
+
     final total = reviews.fold(0, (sum, review) => sum + review.rating);
     return total / reviews.length;
   }

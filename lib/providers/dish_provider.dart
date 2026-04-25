@@ -10,8 +10,13 @@ import '../data/local/services/dish_local_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/local/services/sync_service.dart';
 
-final dishProvider = AsyncNotifierProvider<DishNotifier, List<DishModel>>(DishNotifier.new);
-final likedDishesProvider = AsyncNotifierProvider<LikedDishesNotifier, Set<String>>(LikedDishesNotifier.new);
+final dishProvider = AsyncNotifierProvider<DishNotifier, List<DishModel>>(
+  DishNotifier.new,
+);
+final likedDishesProvider =
+    AsyncNotifierProvider<LikedDishesNotifier, Set<String>>(
+      LikedDishesNotifier.new,
+    );
 
 class DishNotifier extends AsyncNotifier<List<DishModel>> {
   final DishLocalService _dishService = DishLocalService();
@@ -25,8 +30,10 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
           .from('dishes')
           .select()
           .order('created_at', ascending: false);
-      
-      final dishes = (response as List).map((e) => DishModel.fromJson(e)).toList();
+
+      final dishes = (response as List)
+          .map((e) => DishModel.fromJson(e))
+          .toList();
       return dishes;
     } catch (e) {
       debugPrint('Error fetching dishes from Supabase: $e');
@@ -38,28 +45,30 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
   // Manually update like count in state
   void updateDishLikeCount(String dishId, int delta) {
     if (state.value == null) return;
-    
+
     final updatedList = state.value!.map((dish) {
       if (dish.id == dishId) {
         return dish.copyWith(likesCount: dish.likesCount + delta);
       }
       return dish;
     }).toList();
-    
+
     state = AsyncValue.data(updatedList);
   }
 
   Future<void> loadDishesForChef(String chefId) async {
     state = const AsyncValue.loading();
     try {
-      await SyncService().syncAll(); 
+      await SyncService().syncAll();
       final response = await Supabase.instance.client
           .from('dishes')
           .select()
           .eq('chef_id', chefId)
           .order('created_at', ascending: false);
 
-      final dishes = (response as List).map((e) => DishModel.fromJson(e)).toList();
+      final dishes = (response as List)
+          .map((e) => DishModel.fromJson(e))
+          .toList();
       state = AsyncValue.data(dishes);
     } catch (e, st) {
       debugPrint('Error fetching chef dishes: $e');
@@ -98,14 +107,15 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final dishImagesDir = Directory('${directory.path}/dish_images');
-      
+
       if (!await dishImagesDir.exists()) {
         await dishImagesDir.create(recursive: true);
       }
 
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
       final newPath = '${dishImagesDir.path}/$fileName';
-      
+
       final savedImage = await imageFile.copy(newPath);
       return savedImage.path;
     } catch (e) {
@@ -145,23 +155,23 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
         likesCount: 0,
         isPromoted: isPromoted, // Pass it here
       );
-        
+
       final response = await Supabase.instance.client
           .from('dishes')
           .insert(newDish.toJson())
           .select()
           .single();
-          
+
       final createdDish = DishModel.fromJson(response);
-      
+
       // Save to local Hive as well
       await _dishService.addDish(createdDish);
-      
-      await loadDishesForChef(chefId); 
+
+      await loadDishesForChef(chefId);
       return true;
     } catch (e) {
-        debugPrint('Error adding dish to Supabase: $e');
-        return false; 
+      debugPrint('Error adding dish to Supabase: $e');
+      return false;
     }
   }
 
@@ -169,16 +179,16 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
   Future<void> toggleAvailability(String dishId, String chefId) async {
     // Optimistic local update
     await _dishService.toggleAvailability(dishId);
-    
+
     // Remote update
     try {
-       final localDish = _dishService.getDish(dishId);
-       if (localDish != null) {
-         await Supabase.instance.client
-             .from('dishes')
-             .update({'is_active': localDish.isAvailable})
-             .eq('id', dishId);
-       }
+      final localDish = _dishService.getDish(dishId);
+      if (localDish != null) {
+        await Supabase.instance.client
+            .from('dishes')
+            .update({'is_active': localDish.isAvailable})
+            .eq('id', dishId);
+      }
     } catch (e) {
       debugPrint('Error syncing toggle: $e');
     }
@@ -190,7 +200,7 @@ class DishNotifier extends AsyncNotifier<List<DishModel>> {
   Future<void> deleteDish(String dishId, String chefId) async {
     try {
       await Supabase.instance.client.from('dishes').delete().eq('id', dishId);
-    } catch(e) {
+    } catch (e) {
       debugPrint("Error deleting from Supabase: $e");
     }
     await _dishService.deleteDish(dishId);
@@ -206,54 +216,56 @@ class LikedDishesNotifier extends AsyncNotifier<Set<String>> {
 
   Future<Set<String>> _fetchLikes() async {
     try {
-        final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId == null) return {};
-        
-        final response = await Supabase.instance.client
-            .from('dish_likes')
-            .select('dish_id')
-            .eq('user_id', userId);
-            
-        return (response as List).map((e) => e['dish_id'] as String).toSet();
-    } catch(e) {
-        debugPrint('Error fetching liked dishes: $e');
-        return {};
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final response = await Supabase.instance.client
+          .from('dish_likes')
+          .select('dish_id')
+          .eq('user_id', userId);
+
+      return (response as List).map((e) => e['dish_id'] as String).toSet();
+    } catch (e) {
+      debugPrint('Error fetching liked dishes: $e');
+      return {};
     }
   }
 
   Future<void> toggleLike(String dishId) async {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) return;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
 
-      final currentLikes = state.value ?? {};
-      final isLiked = currentLikes.contains(dishId);
-      
-      // Optimistic update
+    final currentLikes = state.value ?? {};
+    final isLiked = currentLikes.contains(dishId);
+
+    // Optimistic update
+    if (isLiked) {
+      state = AsyncValue.data({...currentLikes}..remove(dishId));
+    } else {
+      state = AsyncValue.data({...currentLikes}..add(dishId));
+    }
+
+    try {
       if (isLiked) {
-          state = AsyncValue.data({...currentLikes}..remove(dishId));
+        await Supabase.instance.client
+            .from('dish_likes')
+            .delete()
+            .eq('dish_id', dishId)
+            .eq('user_id', userId);
       } else {
-          state = AsyncValue.data({...currentLikes}..add(dishId));
+        await Supabase.instance.client.from('dish_likes').insert({
+          'dish_id': dishId,
+          'user_id': userId,
+        });
       }
-      
-      try {
-          if (isLiked) {
-             await Supabase.instance.client
-                 .from('dish_likes')
-                 .delete()
-                 .eq('dish_id', dishId)
-                 .eq('user_id', userId);
-          } else {
-             await Supabase.instance.client
-                 .from('dish_likes')
-                 .insert({'dish_id': dishId, 'user_id': userId});
-          }
-          
-          ref.read(dishProvider.notifier).updateDishLikeCount(dishId, isLiked ? -1 : 1);
-          
-      } catch (e) {
-          debugPrint('Error toggling like: $e');
-          // Revert if failed
-          state = AsyncValue.data(currentLikes);
-      }
+
+      ref
+          .read(dishProvider.notifier)
+          .updateDishLikeCount(dishId, isLiked ? -1 : 1);
+    } catch (e) {
+      debugPrint('Error toggling like: $e');
+      // Revert if failed
+      state = AsyncValue.data(currentLikes);
+    }
   }
 }

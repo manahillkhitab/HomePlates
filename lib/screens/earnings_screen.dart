@@ -12,7 +12,7 @@ class EarningsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     final user = ref.watch(authProvider).value;
     final chefId = user?.id ?? '';
     final stats = ref.watch(earningsStatsProvider(chefId));
@@ -88,7 +88,7 @@ class EarningsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 40),
 
                 // Stats Grid
@@ -115,20 +115,22 @@ class EarningsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 48),
-                
+
                 Text(
                   'FINANCIAL BREAKDOWN',
                   style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w900, 
-                    fontSize: 12, 
-                    letterSpacing: 2, 
-                    color: isDark ? Colors.white30 : AppTheme.warmCharcoal.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 2,
+                    color: isDark
+                        ? Colors.white30
+                        : AppTheme.warmCharcoal.withValues(alpha: 0.4),
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 _buildInfoTile(
                   context,
                   icon: Icons.percent_rounded,
@@ -136,20 +138,22 @@ class EarningsScreen extends ConsumerWidget {
                   value: '- Rs. ${stats.commission.toStringAsFixed(0)}',
                   isNegative: true,
                 ),
-                
+
                 const SizedBox(height: 48),
-                    
+
                 Text(
                   'RECENT TRANSACTIONS',
                   style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w900, 
-                    fontSize: 12, 
-                    letterSpacing: 2, 
-                    color: isDark ? Colors.white30 : AppTheme.warmCharcoal.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 2,
+                    color: isDark
+                        ? Colors.white30
+                        : AppTheme.warmCharcoal.withValues(alpha: 0.4),
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 Center(
                   child: Column(
                     children: [
@@ -160,8 +164,8 @@ class EarningsScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.receipt_long_rounded, 
-                          size: 40, 
+                          Icons.receipt_long_rounded,
+                          size: 40,
                           color: AppTheme.primaryGold.withValues(alpha: 0.2),
                         ),
                       ),
@@ -171,7 +175,9 @@ class EarningsScreen extends ConsumerWidget {
                         style: GoogleFonts.outfit(
                           fontWeight: FontWeight.w800,
                           fontSize: 18,
-                          color: isDark ? Colors.white30 : AppTheme.warmCharcoal.withValues(alpha: 0.3),
+                          color: isDark
+                              ? Colors.white30
+                              : AppTheme.warmCharcoal.withValues(alpha: 0.3),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -179,7 +185,9 @@ class EarningsScreen extends ConsumerWidget {
                         'History appears after your next delivery',
                         style: GoogleFonts.outfit(
                           fontSize: 13,
-                          color: isDark ? Colors.white10 : AppTheme.warmCharcoal.withValues(alpha: 0.2),
+                          color: isDark
+                              ? Colors.white10
+                              : AppTheme.warmCharcoal.withValues(alpha: 0.2),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -195,7 +203,13 @@ class EarningsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, {required String title, required String value, required IconData icon, required Color color}) {
+  Widget _buildStatCard(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -225,15 +239,21 @@ class EarningsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           Text(
             value,
-            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+            style: GoogleFonts.outfit(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             title.toUpperCase(),
             style: GoogleFonts.outfit(
-              fontSize: 10, 
-              fontWeight: FontWeight.w800, 
-              color: isDark ? Colors.white24 : AppTheme.warmCharcoal.withValues(alpha: 0.3), 
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: isDark
+                  ? Colors.white24
+                  : AppTheme.warmCharcoal.withValues(alpha: 0.3),
               letterSpacing: 1.5,
             ),
           ),
@@ -242,7 +262,13 @@ class EarningsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoTile(BuildContext context, {required IconData icon, required String title, required String value, bool isNegative = false}) {
+  Widget _buildInfoTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String value,
+    bool isNegative = false,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -250,9 +276,13 @@ class EarningsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]!),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.grey[200]!,
+        ),
         boxShadow: [
-           BoxShadow(
+          BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
@@ -267,13 +297,20 @@ class EarningsScreen extends ConsumerWidget {
               color: AppTheme.primaryGold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.analytics_rounded, color: AppTheme.primaryGold, size: 20),
+            child: const Icon(
+              Icons.analytics_rounded,
+              color: AppTheme.primaryGold,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              title, 
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 15),
+              title,
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
             ),
           ),
           Text(

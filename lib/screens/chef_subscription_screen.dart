@@ -15,12 +15,20 @@ class ChefSubscriptionScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    if (user == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (user == null)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('PREMIUM TIERS', style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
+        title: Text(
+          'PREMIUM TIERS',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
+            letterSpacing: 1,
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -41,7 +49,9 @@ class ChefSubscriptionScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            ...SubscriptionModel.availableTiers.map((tier) => _buildTierCard(context, ref, user, tier, isDark)).toList(),
+            ...SubscriptionModel.availableTiers
+                .map((tier) => _buildTierCard(context, ref, user, tier, isDark))
+                .toList(),
           ],
         ),
       ),
@@ -98,7 +108,13 @@ class ChefSubscriptionScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTierCard(BuildContext context, WidgetRef ref, UserModel user, SubscriptionModel tier, bool isDark) {
+  Widget _buildTierCard(
+    BuildContext context,
+    WidgetRef ref,
+    UserModel user,
+    SubscriptionModel tier,
+    bool isDark,
+  ) {
     final bool isCurrent = user.subscriptionTier == tier.tier;
 
     return Container(
@@ -130,24 +146,39 @@ class ChefSubscriptionScreen extends ConsumerWidget {
                   children: [
                     Text(
                       tier.tier.name.toUpperCase(),
-                      style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 18),
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                      ),
                     ),
                     Text(
-                      tier.monthlyPrice == 0 ? 'Always Free' : 'Rs. ${tier.monthlyPrice}/mo',
-                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.primaryGold),
+                      tier.monthlyPrice == 0
+                          ? 'Always Free'
+                          : 'Rs. ${tier.monthlyPrice}/mo',
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryGold,
+                      ),
                     ),
                   ],
                 ),
                 if (isCurrent)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.primaryGold.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       'ACTIVE',
-                      style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 10, color: AppTheme.primaryGold),
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        color: AppTheme.primaryGold,
+                      ),
                     ),
                   ),
               ],
@@ -156,30 +187,53 @@ class ChefSubscriptionScreen extends ConsumerWidget {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(),
             ),
-            ...tier.perks.map((perk) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle_rounded, color: Colors.green, size: 18),
-                  const SizedBox(width: 12),
-                  Text(perk, style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey)),
-                ],
-              ),
-            )).toList(),
+            ...tier.perks
+                .map(
+                  (perk) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.green,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          perk,
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isCurrent ? null : () => _handleUpgrade(context, ref, user, tier),
+                onPressed: isCurrent
+                    ? null
+                    : () => _handleUpgrade(context, ref, user, tier),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isCurrent ? Colors.grey : AppTheme.primaryGold,
+                  backgroundColor: isCurrent
+                      ? Colors.grey
+                      : AppTheme.primaryGold,
                   foregroundColor: AppTheme.warmCharcoal,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  isCurrent ? 'CURRENT PLAN' : 'UPGRADE TO ${tier.tier.name.toUpperCase()}',
+                  isCurrent
+                      ? 'CURRENT PLAN'
+                      : 'UPGRADE TO ${tier.tier.name.toUpperCase()}',
                   style: GoogleFonts.outfit(fontWeight: FontWeight.w900),
                 ),
               ),
@@ -190,30 +244,49 @@ class ChefSubscriptionScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleUpgrade(BuildContext context, WidgetRef ref, UserModel user, SubscriptionModel tier) async {
+  Future<void> _handleUpgrade(
+    BuildContext context,
+    WidgetRef ref,
+    UserModel user,
+    SubscriptionModel tier,
+  ) async {
     // Show confirmation
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Upgrade Plan?'),
-        content: Text('Would you like to upgrade to the ${tier.tier.name} tier for Rs. ${tier.monthlyPrice}/mo?'),
+        content: Text(
+          'Would you like to upgrade to the ${tier.tier.name} tier for Rs. ${tier.monthlyPrice}/mo?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('UPGRADE')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('CANCEL'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('UPGRADE'),
+          ),
         ],
       ),
     );
 
     if (confirm == true) {
-      await ref.read(authProvider.notifier).updateProfile(
-        user.copyWith(
-          subscriptionTier: tier.tier,
-          subscriptionExpiry: DateTime.now().add(const Duration(days: 30)),
-        ),
-      );
+      await ref
+          .read(authProvider.notifier)
+          .updateProfile(
+            user.copyWith(
+              subscriptionTier: tier.tier,
+              subscriptionExpiry: DateTime.now().add(const Duration(days: 30)),
+            ),
+          );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully upgraded to ${tier.tier.name.toUpperCase()}! 🚀')),
+          SnackBar(
+            content: Text(
+              'Successfully upgraded to ${tier.tier.name.toUpperCase()}! 🚀',
+            ),
+          ),
         );
       }
     }

@@ -24,6 +24,10 @@ class AuthLocalService {
     }
   }
 
+  Future<void> clearUser() async {
+    await _userBox.delete('current_user');
+  }
+
   // Delete everything (Wipe data)
   Future<void> deleteUser() async {
     await _userBox.clear();

@@ -1,13 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/local/models/app_config_model.dart';
 import '../utils/constants.dart';
 
-final configProvider = AsyncNotifierProvider<ConfigNotifier, AppConfigModel>(ConfigNotifier.new);
+final configProvider = AsyncNotifierProvider<ConfigNotifier, AppConfigModel>(
+  ConfigNotifier.new,
+);
 
 class ConfigNotifier extends AsyncNotifier<AppConfigModel> {
-  Box<AppConfigModel> get _configBox => Hive.box<AppConfigModel>(AppConstants.configBox);
+  Box<AppConfigModel> get _configBox =>
+      Hive.box<AppConfigModel>(AppConstants.configBox);
 
   @override
   Future<AppConfigModel> build() async {
@@ -17,10 +21,10 @@ class ConfigNotifier extends AsyncNotifier<AppConfigModel> {
           .from('app_config')
           .select()
           .single();
-      
+
       final rawChefComm = (response['chef_commission'] as num).toDouble();
       final rawRiderComm = (response['rider_commission'] as num).toDouble();
-      
+
       final remoteConfig = AppConfigModel(
         baseDeliveryFee: (response['base_delivery_fee'] as num).toDouble(),
         chefCommission: rawChefComm > 1 ? rawChefComm / 100 : rawChefComm,
@@ -42,23 +46,25 @@ class ConfigNotifier extends AsyncNotifier<AppConfigModel> {
   Future<void> updateConfig(AppConfigModel newConfig) async {
     // Optimistic Update
     state = AsyncValue.data(newConfig);
-    
+
     try {
       // 1. Save Local
       await _configBox.put('current', newConfig);
 
       // 2. Save Remote
-      await Supabase.instance.client.from('app_config').update({
-        'base_delivery_fee': newConfig.baseDeliveryFee,
-        'chef_commission': newConfig.chefCommission,
-        'rider_commission': newConfig.riderCommission,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', 1);
-
-    } catch (e, st) {
+      await Supabase.instance.client
+          .from('app_config')
+          .update({
+            'base_delivery_fee': newConfig.baseDeliveryFee,
+            'chef_commission': newConfig.chefCommission,
+            'rider_commission': newConfig.riderCommission,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', 1);
+    } catch (e) {
       // Revert on error? Or just log. For admin, showing error is better.
-      print('Config sync error: $e');
-      // state = AsyncValue.error(e, st); 
+      debugPrint('Config sync error: $e');
+      // state = AsyncValue.error(e, st);
     }
   }
 

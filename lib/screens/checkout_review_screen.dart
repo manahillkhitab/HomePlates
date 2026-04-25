@@ -8,8 +8,8 @@ import '../providers/wallet_provider.dart';
 import '../providers/promo_provider.dart';
 
 import '../data/local/models/cart_summary.dart';
-import '../data/local/models/order_model.dart';
-import '../data/local/models/user_model.dart';
+import '../data/local/models/enums.dart';
+import '../data/local/models/order_item.dart';
 
 import '../utils/app_theme.dart';
 import '../utils/app_text_styles.dart';
@@ -26,7 +26,8 @@ class CheckoutReviewScreen extends ConsumerStatefulWidget {
   const CheckoutReviewScreen({super.key, required this.cart});
 
   @override
-  ConsumerState<CheckoutReviewScreen> createState() => _CheckoutReviewScreenState();
+  ConsumerState<CheckoutReviewScreen> createState() =>
+      _CheckoutReviewScreenState();
 }
 
 class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
@@ -42,7 +43,10 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
   double get _discount {
     final promo = ref.watch(appliedPromoProvider);
     if (promo == null) return 0.0;
-    return (widget.cart.total * promo.discountPercentage).clamp(0, promo.maxDiscount);
+    return (widget.cart.total * promo.discountPercentage).clamp(
+      0,
+      promo.maxDiscount,
+    );
   }
 
   double get _grandTotal => widget.cart.total + _deliveryFee - _discount;
@@ -71,7 +75,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final user = ref.watch(authProvider).value;
-    final walletBalance = user != null ? (ref.watch(walletProvider(user.id)).balance) : 0.0;
+    final walletBalance = user != null
+        ? (ref.watch(walletProvider(user.id)).balance)
+        : 0.0;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -79,7 +85,10 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppTheme.warmCharcoal),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: isDark ? Colors.white : AppTheme.warmCharcoal,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -96,7 +105,7 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
             _buildSectionTitle('Delivery Address'),
             const SizedBox(height: AppSpacing.sm),
             _buildAddressCard(_addressController.text, isDark),
-            
+
             const SizedBox(height: AppSpacing.xl),
             _buildSectionTitle('Payment Method'),
             const SizedBox(height: AppSpacing.sm),
@@ -116,22 +125,22 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               isDark,
               isEnabled: walletBalance >= _grandTotal,
             ),
-            
+
             const SizedBox(height: AppSpacing.xl),
             _buildSectionTitle('Special Instructions'),
             const SizedBox(height: AppSpacing.sm),
             _buildSpecialInstructions(isDark),
-            
+
             const SizedBox(height: AppSpacing.xl),
             _buildSectionTitle('Order Summary'),
             const SizedBox(height: AppSpacing.sm),
             _buildOrderSummary(isDark),
-            
+
             const SizedBox(height: AppSpacing.xl),
             _buildSectionTitle('Promo Code'),
             const SizedBox(height: AppSpacing.sm),
             _buildPromoCodeInput(isDark),
-            
+
             const SizedBox(height: 40),
             AppButton.primary(
               text: 'CONFIRM & PAY',
@@ -139,7 +148,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               isLoading: _isPlacingOrder,
               isExpanded: true,
               height: 56,
-              textStyle: AppTextStyles.headingSmall(color: AppTheme.warmCharcoal).copyWith(fontWeight: FontWeight.w900, letterSpacing: 1),
+              textStyle: AppTextStyles.headingSmall(
+                color: AppTheme.warmCharcoal,
+              ).copyWith(fontWeight: FontWeight.w900, letterSpacing: 1),
             ),
           ],
         ),
@@ -150,7 +161,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title.toUpperCase(),
-      style: AppTextStyles.labelMedium(color: AppTheme.primaryGold).copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+      style: AppTextStyles.labelMedium(
+        color: AppTheme.primaryGold,
+      ).copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
     );
   }
 
@@ -166,17 +179,25 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on_rounded, color: AppTheme.primaryGold),
+              const Icon(
+                Icons.location_on_rounded,
+                color: AppTheme.primaryGold,
+              ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
                   address.isEmpty ? 'Tap Edit to set address' : address,
-                  style: AppTextStyles.bodyLarge(color: isDark ? Colors.white : AppTheme.warmCharcoal),
+                  style: AppTextStyles.bodyLarge(
+                    color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                  ),
                 ),
               ),
               TextButton(
                 onPressed: _showAddressEditDialog,
-                child: Text('EDIT', style: AppTextStyles.labelLarge(color: AppTheme.primaryGold)),
+                child: Text(
+                  'EDIT',
+                  style: AppTextStyles.labelLarge(color: AppTheme.primaryGold),
+                ),
               ),
             ],
           ),
@@ -190,21 +211,28 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        ),
         title: Text('Delivery Address', style: AppTextStyles.headingMedium()),
         content: TextField(
           controller: _addressController,
           maxLines: 3,
           decoration: InputDecoration(
             hintText: 'Enter complete delivery address...',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
           ),
           onChanged: (val) => setState(() {}),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('DONE', style: AppTextStyles.labelLarge(color: AppTheme.primaryGold)),
+            child: Text(
+              'DONE',
+              style: AppTextStyles.labelLarge(color: AppTheme.primaryGold),
+            ),
           ),
         ],
       ),
@@ -220,7 +248,7 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
     bool isEnabled = true,
   }) {
     final isSelected = _selectedMethod == method;
-    
+
     return InkWell(
       onTap: isEnabled ? () => setState(() => _selectedMethod = method) : null,
       borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -230,7 +258,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
           color: isDark ? AppTheme.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryGold : AppTheme.primaryGold.withValues(alpha: 0.05),
+            color: isSelected
+                ? AppTheme.primaryGold
+                : AppTheme.primaryGold.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -242,29 +272,62 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal)),
-                  Text(subtitle, style: AppTextStyles.bodySmall(color: Colors.grey)),
+                  Text(
+                    title,
+                    style: AppTextStyles.headingSmall(
+                      color: isDark ? Colors.white : AppTheme.warmCharcoal,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodySmall(color: Colors.grey),
+                  ),
                 ],
               ),
             ),
-            if (isSelected) 
-              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryGold)
+            if (isSelected)
+              const Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.primaryGold,
+              )
             else if (!isEnabled)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('Insufficient', style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Insufficient',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   TextButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScreen())),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WalletScreen()),
+                    ),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      backgroundColor: AppTheme.primaryGold.withValues(alpha: 0.1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: AppTheme.primaryGold.withValues(
+                        alpha: 0.1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    child: Text('RECHARGE', style: AppTextStyles.caption(color: AppTheme.primaryGold).copyWith(fontWeight: FontWeight.w900)),
+                    child: Text(
+                      'RECHARGE',
+                      style: AppTextStyles.caption(
+                        color: AppTheme.primaryGold,
+                      ).copyWith(fontWeight: FontWeight.w900),
+                    ),
                   ),
                 ],
               ),
@@ -283,18 +346,32 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
       ),
       child: Column(
         children: [
-          _buildSummaryRow('Items Total', 'Rs. ${widget.cart.total.toStringAsFixed(0)}'),
+          _buildSummaryRow(
+            'Items Total',
+            'Rs. ${widget.cart.total.toStringAsFixed(0)}',
+          ),
           if (_discount > 0) ...[
             const SizedBox(height: 8),
-            _buildSummaryRow('Discount', '- Rs. ${_discount.toStringAsFixed(0)}', isDiscount: true),
+            _buildSummaryRow(
+              'Discount',
+              '- Rs. ${_discount.toStringAsFixed(0)}',
+              isDiscount: true,
+            ),
           ],
           const SizedBox(height: 8),
-          _buildSummaryRow('Delivery Fee', 'Rs. ${_deliveryFee.toStringAsFixed(0)}'),
+          _buildSummaryRow(
+            'Delivery Fee',
+            'Rs. ${_deliveryFee.toStringAsFixed(0)}',
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(),
           ),
-          _buildSummaryRow('Grand Total', 'Rs. ${_grandTotal.toStringAsFixed(0)}', isTotal: true),
+          _buildSummaryRow(
+            'Grand Total',
+            'Rs. ${_grandTotal.toStringAsFixed(0)}',
+            isTotal: true,
+          ),
         ],
       ),
     );
@@ -306,7 +383,11 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(color: _isListening ? AppTheme.primaryGold : AppTheme.primaryGold.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: _isListening
+              ? AppTheme.primaryGold
+              : AppTheme.primaryGold.withValues(alpha: 0.1),
+        ),
       ),
       child: TextField(
         controller: _notesController,
@@ -315,7 +396,10 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
           hintText: 'Any special instructions? (e.g. less spicy)',
           hintStyle: AppTextStyles.bodyMedium(color: Colors.grey),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
           suffixIcon: IconButton(
             icon: Icon(
               _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
@@ -364,7 +448,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               controller: _promoController,
               enabled: promo == null,
               decoration: InputDecoration(
-                hintText: promo != null ? 'Code Applied: ${promo.code}' : 'Enter code (e.g. WELCOME10)',
+                hintText: promo != null
+                    ? 'Code Applied: ${promo.code}'
+                    : 'Enter code (e.g. WELCOME10)',
                 hintStyle: AppTextStyles.bodyMedium(color: Colors.grey),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -374,8 +460,12 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
           ),
           if (promo != null)
             TextButton(
-              onPressed: () => ref.read(appliedPromoProvider.notifier).state = null,
-              child: Text('REMOVE', style: AppTextStyles.labelLarge(color: Colors.redAccent)),
+              onPressed: () =>
+                  ref.read(appliedPromoProvider.notifier).state = null,
+              child: Text(
+                'REMOVE',
+                style: AppTextStyles.labelLarge(color: Colors.redAccent),
+              ),
             )
           else
             AppButton.primary(
@@ -384,7 +474,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               height: 40,
               isExpanded: false,
               backgroundColor: AppTheme.primaryGold,
-              textStyle: AppTextStyles.labelLarge(color: AppTheme.warmCharcoal).copyWith(fontWeight: FontWeight.bold),
+              textStyle: AppTextStyles.labelLarge(
+                color: AppTheme.warmCharcoal,
+              ).copyWith(fontWeight: FontWeight.bold),
             ),
         ],
       ),
@@ -395,7 +487,9 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
     final code = _promoController.text.trim();
     if (code.isEmpty) return;
 
-    final promo = await ref.read(promoProvider.notifier).validatePromo(code, widget.cart.total);
+    final promo = await ref
+        .read(promoProvider.notifier)
+        .validatePromo(code, widget.cart.total);
 
     if (promo != null) {
       setState(() {
@@ -408,16 +502,29 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
     }
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool isTotal = false, bool isDiscount = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    bool isTotal = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyles.bodyLarge(
-          color: isDiscount ? Colors.green : (isTotal ? null : Colors.grey),
-        ).copyWith(fontWeight: isTotal ? FontWeight.w900 : FontWeight.w500)),
-        Text(value, style: AppTextStyles.headingSmall(
-          color: isTotal ? AppTheme.primaryGold : (isDiscount ? Colors.green : null),
-        )),
+        Text(
+          label,
+          style: AppTextStyles.bodyLarge(
+            color: isDiscount ? Colors.green : (isTotal ? null : Colors.grey),
+          ).copyWith(fontWeight: isTotal ? FontWeight.w900 : FontWeight.w500),
+        ),
+        Text(
+          value,
+          style: AppTextStyles.headingSmall(
+            color: isTotal
+                ? AppTheme.primaryGold
+                : (isDiscount ? Colors.green : null),
+          ),
+        ),
       ],
     );
   }
@@ -428,26 +535,37 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
 
     setState(() => _isPlacingOrder = true);
 
-    final success = await ref.read(orderProvider.notifier).createOrderFromCart(
-      customer: user,
-      cart: widget.cart,
-      items: widget.cart.items.map((e) => OrderItem(
-          dishId: e.dishId,
-          name: e.name,
-          price: e.price,
-          quantity: e.quantity,
-          imagePath: e.imagePath,
-          selectedOptions: e.selectedOptions,
-        )).toList(),
-      paymentMethod: _selectedMethod,
-      notes: _notesController.text.isNotEmpty ? _notesController.text : null,
-      deliveryAddress: _addressController.text.isNotEmpty ? _addressController.text : null,
-    );
+    final success = await ref
+        .read(orderProvider.notifier)
+        .createOrderFromCart(
+          customer: user,
+          cart: widget.cart,
+          items: widget.cart.items
+              .map(
+                (e) => OrderItem(
+                  dishId: e.dishId,
+                  name: e.name,
+                  price: e.price,
+                  quantity: e.quantity,
+                  imagePath: e.imagePath,
+                  selectedOptions: e.selectedOptions,
+                ),
+              )
+              .toList(),
+          paymentMethod: _selectedMethod,
+          notes: _notesController.text.isNotEmpty
+              ? _notesController.text
+              : null,
+          deliveryAddress: _addressController.text.isNotEmpty
+              ? _addressController.text
+              : null,
+        );
 
     if (mounted) {
       setState(() => _isPlacingOrder = false);
       if (success) {
         await ref.read(cartProvider.notifier).clearCart();
+        if (!context.mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MyOrdersScreen()),
@@ -457,14 +575,13 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
           const SnackBar(content: Text('Order placed successfully! 🚀')),
         );
       } else {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to place order. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to place order. Please try again.'),
+          ),
         );
       }
     }
   }
-}
-
-extension on Widget {
-  Widget opacity(double opacity) => Opacity(opacity: opacity, child: this);
 }

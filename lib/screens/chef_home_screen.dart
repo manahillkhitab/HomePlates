@@ -10,7 +10,7 @@ class ChefHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = AuthController();
-    
+
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
       appBar: AppBar(
@@ -28,7 +28,11 @@ class ChefHomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.outdoor_grill, size: 100, color: AppTheme.mutedSaffron),
+              const Icon(
+                Icons.outdoor_grill,
+                size: 100,
+                color: AppTheme.mutedSaffron,
+              ),
               const SizedBox(height: 24),
               Text(
                 'Welcome, Chef ${authController.currentUser?.name ?? ''}!',
@@ -38,20 +42,28 @@ class ChefHomeScreen extends StatelessWidget {
               const SizedBox(height: 8),
               const Text(
                 'Role: Home Chef',
-                style: TextStyle(color: AppTheme.mutedSaffron, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: AppTheme.mutedSaffron,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyDishesScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const MyDishesScreen(),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.restaurant_menu),
                 label: const Text('Manage My Dishes'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                 ),
               ),
             ],

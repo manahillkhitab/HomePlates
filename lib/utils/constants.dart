@@ -14,6 +14,16 @@ class AppConstants {
   static const String userBox = 'user_box';
   static const String dishBox = 'dish_box';
   static const String orderBox = 'order_box';
+  static const String settingsBox = 'settings_box';
+  static const String notificationBox = 'notification_box';
+  static const String cartBox = 'cart_box';
+  static const String messageBox = 'message_box';
+  static const String configBox = 'config_box';
+  static const String reviewBox = 'review_box';
+  static const String transactionBox = 'transaction_box';
+
+  static const String themeKey = 'theme_key';
+  static const String onboardingKey = 'onboarding_key';
 }
 
 // Color Constants (matching the beige/cream design from layouts)

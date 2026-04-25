@@ -33,9 +33,13 @@ class DishOption extends HiveObject {
       isSelected: isSelected ?? this.isSelected,
     );
   }
+
   factory DishOption.fromJson(Map<String, dynamic> json) {
     return DishOption(
-      id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(), // fallback if missing
+      id:
+          json['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch
+              .toString(), // fallback if missing
       name: json['name'] as String,
       price: (json['price'] as num).toDouble(),
       isSelected: json['is_selected'] as bool? ?? false,
@@ -43,11 +47,6 @@ class DishOption extends HiveObject {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'price': price,
-      'is_selected': isSelected,
-    };
+    return {'id': id, 'name': name, 'price': price, 'is_selected': isSelected};
   }
 }

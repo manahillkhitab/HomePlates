@@ -37,9 +37,9 @@ class NotificationService {
   }
 
   Future<void> showStatusNotification(
-    String title, 
+    String title,
     String body, {
-    String? type, 
+    String? type,
     String? relatedId,
     required String targetUserId,
   }) async {
@@ -57,7 +57,9 @@ class NotificationService {
         userId: targetUserId,
       );
       await box.put(notification.id, notification);
-      debugPrint('Notification saved to Hive for user $targetUserId: ${notification.id}');
+      debugPrint(
+        'Notification saved to Hive for user $targetUserId: ${notification.id}',
+      );
     } catch (e) {
       debugPrint('Error saving notification: $e');
     }
@@ -67,19 +69,21 @@ class NotificationService {
     // For now, we'll show it (the sync will handle cross-device delivery)
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'order_status_channel',
-      'Order Updates',
-      channelDescription: 'Notifications for order status changes',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
+          'order_status_channel',
+          'Order Updates',
+          channelDescription: 'Notifications for order status changes',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: true,
+        );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
     );
 
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
     try {
-      final displayId = (DateTime.now().millisecondsSinceEpoch % 1000000000).toInt();
+      final displayId = (DateTime.now().millisecondsSinceEpoch % 1000000000)
+          .toInt();
       await flutterLocalNotificationsPlugin.show(
         displayId,
         title,
@@ -103,7 +107,9 @@ class NotificationService {
     final box = Hive.box<NotificationModel>(AppConstants.notificationBox);
     for (var key in box.keys) {
       final notification = box.get(key);
-      if (notification != null && !notification.isRead && notification.userId == userId) {
+      if (notification != null &&
+          !notification.isRead &&
+          notification.userId == userId) {
         await box.put(key, notification.copyWith(isRead: true));
       }
     }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 
 class RiderLocation {
   final double lat;
@@ -11,7 +10,8 @@ class RiderLocation {
 }
 
 class RiderLocationService {
-  static final RiderLocationService _instance = RiderLocationService._internal();
+  static final RiderLocationService _instance =
+      RiderLocationService._internal();
   factory RiderLocationService() => _instance;
   RiderLocationService._internal();
 
@@ -26,16 +26,19 @@ class RiderLocationService {
 
     final controller = StreamController<RiderLocation>.broadcast();
     _controllers[orderId] = controller;
-    
+
     _startSimulation(orderId, controller);
-    
+
     return controller.stream;
   }
 
-  void _startSimulation(String orderId, StreamController<RiderLocation> controller) {
+  void _startSimulation(
+    String orderId,
+    StreamController<RiderLocation> controller,
+  ) {
     const startLat = 31.5204;
     const startLng = 74.3587;
-    
+
     // Generate a random destination within ~2km
     final destLat = startLat + (Random().nextDouble() - 0.5) * 0.04;
     final destLng = startLng + (Random().nextDouble() - 0.5) * 0.04;
@@ -57,9 +60,10 @@ class RiderLocationService {
       double progress = currentStep / steps;
       double currentLat = startLat + (destLat - startLat) * progress;
       double currentLng = startLng + (destLng - startLng) * progress;
-      
+
       // Calculate rotation (heading)
-      double rotation = atan2(destLng - startLng, destLat - startLat) * 180 / pi;
+      double rotation =
+          atan2(destLng - startLng, destLat - startLat) * 180 / pi;
 
       controller.add(RiderLocation(currentLat, currentLng, rotation));
       currentStep++;

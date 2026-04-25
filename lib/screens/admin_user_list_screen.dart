@@ -36,21 +36,25 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
 
   Future<void> _fetchUsers() async {
     setState(() => _isLoading = true);
-    
+
     // First, load from Hive (local storage)
     try {
       final userBox = Hive.box<UserModel>(AppConstants.userBox);
-      final localUsers = userBox.values.map((user) => {
-        'id': user.id,
-        'name': user.name,
-        'email': user.email,
-        'phone': user.phone,
-        'role': user.role.name,
-        'status': user.status.name,
-        'address': user.address,
-        'kitchenName': user.kitchenName,
-      }).toList();
-      
+      final localUsers = userBox.values
+          .map(
+            (user) => {
+              'id': user.id,
+              'name': user.name,
+              'email': user.email,
+              'phone': user.phone,
+              'role': user.role.name,
+              'status': user.status.name,
+              'address': user.address,
+              'kitchenName': user.kitchenName,
+            },
+          )
+          .toList();
+
       if (mounted && localUsers.isNotEmpty) {
         setState(() {
           _users = localUsers;
@@ -59,14 +63,14 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     } catch (e) {
       debugPrint('Error loading local users: $e');
     }
-    
+
     // Then fetch from Supabase
     try {
       final res = await _supabase
           .from('users')
           .select()
           .order('name', ascending: true);
-      
+
       if (mounted) {
         setState(() {
           _users = res as List<dynamic>;
@@ -83,21 +87,33 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     return _users.where((user) {
       bool matchesRole = true;
       if (_selectedRole == 'pending_status') {
-        matchesRole = (user['status'] as String? ?? 'approved').toLowerCase() == 'pending';
+        matchesRole =
+            (user['status'] as String? ?? 'approved').toLowerCase() ==
+            'pending';
       } else if (_selectedRole != 'all') {
-        matchesRole = (user['role'] as String).toLowerCase() == _selectedRole.toLowerCase();
+        matchesRole =
+            (user['role'] as String).toLowerCase() ==
+            _selectedRole.toLowerCase();
       }
-      
-      final matchesSearch = user['name'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          user['email'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+
+      final matchesSearch =
+          user['name'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ||
+          user['email'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
       return matchesRole && matchesSearch;
     }).toList();
   }
 
   Future<void> _updateUserStatus(String userId, String newStatus) async {
     try {
-      await _supabase.from('users').update({'status': newStatus}).eq('id', userId);
-      
+      await _supabase
+          .from('users')
+          .update({'status': newStatus})
+          .eq('id', userId);
+
       // Update local state
       if (mounted) {
         setState(() {
@@ -107,14 +123,19 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
           }
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User status updated to ${newStatus.toUpperCase()}')),
+          SnackBar(
+            content: Text('User status updated to ${newStatus.toUpperCase()}'),
+          ),
         );
       }
     } catch (e) {
       debugPrint('Error updating user status: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update status: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text('Failed to update status: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
@@ -128,10 +149,17 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('System Users', style: AppTextStyles.headingMedium(color: isDark ? Colors.white : AppTheme.warmCharcoal)),
+        title: Text(
+          'System Users',
+          style: AppTextStyles.headingMedium(
+            color: isDark ? Colors.white : AppTheme.warmCharcoal,
+          ),
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : AppTheme.warmCharcoal),
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : AppTheme.warmCharcoal,
+        ),
       ),
       body: Column(
         children: [
@@ -150,7 +178,10 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
               ),
             ),
           ),
@@ -174,68 +205,104 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryGold,
+                    ),
+                  )
                 : _filteredUsers.isEmpty
-                    ? Center(child: EmptyState(
-                      icon: Icons.people_outline, 
-                      message: 'No users found', 
-                      actionLabel: '', 
-                      onAction: () {}
-                    ))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        itemCount: _filteredUsers.length,
-                        itemBuilder: (context, index) {
-                          final user = _filteredUsers[index];
-                          final role = user['role'] as String;
-                          
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                            decoration: BoxDecoration(
-                              color: isDark ? AppTheme.darkCard : Colors.white,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                              boxShadow: AppTheme.shadowSm(isDark),
+                ? Center(
+                    child: EmptyState(
+                      icon: Icons.people_outline,
+                      message: 'No users found',
+                      actionLabel: '',
+                      onAction: () {},
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    itemCount: _filteredUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = _filteredUsers[index];
+                      final role = user['role'] as String;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppTheme.darkCard : Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
+                          boxShadow: AppTheme.shadowSm(isDark),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(AppSpacing.md),
+                          leading: CircleAvatar(
+                            backgroundColor: _getRoleColor(
+                              role,
+                            ).withValues(alpha: 0.1),
+                            child: Icon(
+                              _getRoleIcon(role),
+                              color: _getRoleColor(role),
                             ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(AppSpacing.md),
-                              leading: CircleAvatar(
-                                backgroundColor: _getRoleColor(role).withValues(alpha: 0.1),
-                                child: Icon(_getRoleIcon(role), color: _getRoleColor(role)),
+                          ),
+                          title: Text(
+                            user['name'] ?? 'Unknown',
+                            style: AppTextStyles.headingSmall(
+                              color: isDark
+                                  ? Colors.white
+                                  : AppTheme.warmCharcoal,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user['email'] ?? '',
+                                style: AppTextStyles.bodySmall(
+                                  color: Colors.grey,
+                                ),
                               ),
-                              title: Text(
-                                user['name'] ?? 'Unknown', 
-                                style: AppTextStyles.headingSmall(color: isDark ? Colors.white : AppTheme.warmCharcoal)
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              const SizedBox(height: 4),
+                              Row(
                                 children: [
-                                  Text(user['email'] ?? '', style: AppTextStyles.bodySmall(color: Colors.grey)),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: _getRoleColor(role).withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                                        ),
-                                        child: Text(
-                                          role.toUpperCase(),
-                                          style: AppTextStyles.labelSmall(color: _getRoleColor(role)).copyWith(fontWeight: FontWeight.bold),
-                                        ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getRoleColor(
+                                        role,
+                                      ).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusSm,
                                       ),
-                                      const SizedBox(width: 8),
-                                      _buildStatusBadge(user['status'] ?? 'approved'),
-                                    ],
+                                    ),
+                                    child: Text(
+                                      role.toUpperCase(),
+                                      style: AppTextStyles.labelSmall(
+                                        color: _getRoleColor(role),
+                                      ).copyWith(fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _buildStatusBadge(
+                                    user['status'] ?? 'approved',
                                   ),
                                 ],
                               ),
-                              trailing: Icon(Icons.chevron_right, color: Colors.grey.withValues(alpha: 0.5)),
-                              onTap: () => _showUserDetail(user),
-                            ),
-                          );
-                        },
-                      ),
+                            ],
+                          ),
+                          trailing: Icon(
+                            Icons.chevron_right,
+                            color: Colors.grey.withValues(alpha: 0.5),
+                          ),
+                          onTap: () => _showUserDetail(user),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -251,28 +318,36 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
         if (selected) setState(() => _selectedRole = value);
       },
       selectedColor: AppTheme.primaryGold.withValues(alpha: 0.2),
-      backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkCard : Colors.grey[200],
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? AppTheme.darkCard
+          : Colors.grey[200],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
       side: BorderSide.none,
       labelStyle: AppTextStyles.labelMedium(
-        color: isSelected ? AppTheme.primaryGold : Colors.grey
+        color: isSelected ? AppTheme.primaryGold : Colors.grey,
       ).copyWith(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
     );
   }
 
   IconData _getRoleIcon(String role) {
     switch (role.toLowerCase()) {
-      case 'chef': return Icons.restaurant;
-      case 'rider': return Icons.delivery_dining;
-      default: return Icons.person;
+      case 'chef':
+        return Icons.restaurant;
+      case 'rider':
+        return Icons.delivery_dining;
+      default:
+        return Icons.person;
     }
   }
 
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
-      case 'chef': return Colors.orange;
-      case 'rider': return Colors.purple;
-      default: return Colors.blue;
+      case 'chef':
+        return Colors.orange;
+      case 'rider':
+        return Colors.purple;
+      default:
+        return Colors.blue;
     }
   }
 
@@ -281,7 +356,9 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         maxChildSize: 0.9,
@@ -297,7 +374,10 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -308,13 +388,21 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
               _detailItem('Phone', user['phone'] ?? 'Not provided'),
               _detailItem('Address', user['address'] ?? 'Not provided'),
               _detailItem('Role', (user['role'] as String).toUpperCase()),
-              _detailItem('Current Status', (user['status'] as String? ?? 'approved').toUpperCase()),
-              if (user['kitchen_name'] != null && user['kitchen_name'].toString().isNotEmpty)
+              _detailItem(
+                'Current Status',
+                (user['status'] as String? ?? 'approved').toUpperCase(),
+              ),
+              if (user['kitchen_name'] != null &&
+                  user['kitchen_name'].toString().isNotEmpty)
                 _detailItem('Kitchen Name', user['kitchen_name']),
-              if (user['vehicle_number'] != null && user['vehicle_number'].toString().isNotEmpty)
-                _detailItem('Vehicle', '${user['vehicle_type'] ?? ''} - ${user['vehicle_number']}'),
+              if (user['vehicle_number'] != null &&
+                  user['vehicle_number'].toString().isNotEmpty)
+                _detailItem(
+                  'Vehicle',
+                  '${user['vehicle_type'] ?? ''} - ${user['vehicle_number']}',
+                ),
               const SizedBox(height: AppSpacing.xl),
-              
+
               if ((user['status'] as String? ?? 'approved') == 'pending') ...[
                 Row(
                   children: [
@@ -338,14 +426,15 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                           _updateUserStatus(user['id'], 'rejected');
                           Navigator.pop(context);
                         },
-                         height: 48,
+                        height: 48,
                         isExpanded: false,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
-              ] else if ((user['status'] as String? ?? 'approved') == 'approved') ...[
+              ] else if ((user['status'] as String? ?? 'approved') ==
+                  'approved') ...[
                 AppButton.secondary(
                   text: 'BLOCK USER',
                   onPressed: () {
@@ -354,10 +443,13 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                   },
                   height: 48,
                   borderColor: Colors.red,
-                  textStyle: AppTextStyles.labelLarge(color: Colors.red).copyWith(fontWeight: FontWeight.bold),
+                  textStyle: AppTextStyles.labelLarge(
+                    color: Colors.red,
+                  ).copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppSpacing.md),
-              ] else if ((user['status'] as String? ?? 'approved') == 'blocked') ...[
+              ] else if ((user['status'] as String? ?? 'approved') ==
+                  'blocked') ...[
                 AppButton.primary(
                   text: 'UNBLOCK USER',
                   onPressed: () {
@@ -400,11 +492,20 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   Widget _buildStatusBadge(String status) {
     Color color;
     switch (status.toLowerCase()) {
-      case 'pending': color = Colors.orange; break;
-      case 'approved': color = Colors.green; break;
-      case 'rejected': color = Colors.red; break;
-      case 'blocked': color = Colors.redAccent; break;
-      default: color = Colors.grey;
+      case 'pending':
+        color = Colors.orange;
+        break;
+      case 'approved':
+        color = Colors.green;
+        break;
+      case 'rejected':
+        color = Colors.red;
+        break;
+      case 'blocked':
+        color = Colors.redAccent;
+        break;
+      default:
+        color = Colors.grey;
     }
 
     return Container(
@@ -416,7 +517,9 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
       ),
       child: Text(
         status.toUpperCase(),
-        style: AppTextStyles.labelSmall(color: color).copyWith(fontSize: 10, fontWeight: FontWeight.w900),
+        style: AppTextStyles.labelSmall(
+          color: color,
+        ).copyWith(fontSize: 10, fontWeight: FontWeight.w900),
       ),
     );
   }

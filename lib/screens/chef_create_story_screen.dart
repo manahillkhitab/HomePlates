@@ -11,7 +11,8 @@ class ChefCreateStoryScreen extends ConsumerStatefulWidget {
   const ChefCreateStoryScreen({super.key});
 
   @override
-  ConsumerState<ChefCreateStoryScreen> createState() => _ChefCreateStoryScreenState();
+  ConsumerState<ChefCreateStoryScreen> createState() =>
+      _ChefCreateStoryScreenState();
 }
 
 class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
@@ -21,7 +22,10 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
     if (image != null) {
       setState(() {
         _selectedImage = File(image.path);
@@ -31,21 +35,25 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
 
   Future<void> _submitStory() async {
     if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an image')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select an image')));
       return;
     }
 
     setState(() => _isLoading = true);
-    
+
     try {
       final chef = ref.read(authProvider).value;
       if (chef == null) return;
 
-      await ref.read(socialProvider.notifier).createPost(
-        chefId: chef.id,
-        imagePath: _selectedImage!.path,
-        caption: _captionController.text.trim(),
-      );
+      await ref
+          .read(socialProvider.notifier)
+          .createPost(
+            chefId: chef.id,
+            imagePath: _selectedImage!.path,
+            caption: _captionController.text.trim(),
+          );
 
       if (mounted) {
         Navigator.pop(context);
@@ -55,9 +63,9 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post story: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to post story: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -97,8 +105,10 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
                   color: isDark ? AppTheme.darkCard : Colors.grey[100],
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: _selectedImage == null ? Colors.grey : AppTheme.primaryGold, 
-                    width: 2
+                    color: _selectedImage == null
+                        ? Colors.grey
+                        : AppTheme.primaryGold,
+                    width: 2,
                   ),
                 ),
                 child: _selectedImage != null
@@ -109,7 +119,11 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_a_photo_rounded, size: 48, color: Colors.grey[400]),
+                          Icon(
+                            Icons.add_a_photo_rounded,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Tap to Add Photo',
@@ -123,7 +137,7 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Caption
             TextField(
               controller: _captionController,
@@ -142,7 +156,7 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Submit Button
             SizedBox(
               width: double.infinity,
@@ -152,14 +166,27 @@ class _ChefCreateStoryScreenState extends ConsumerState<ChefCreateStoryScreen> {
                   backgroundColor: AppTheme.primaryGold,
                   foregroundColor: AppTheme.warmCharcoal,
                   padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: _isLoading
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.warmCharcoal))
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.warmCharcoal,
+                        ),
+                      )
                     : Text(
                         'POST STORY',
-                        style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1),
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        ),
                       ),
               ),
             ),

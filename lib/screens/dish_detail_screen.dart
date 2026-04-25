@@ -18,7 +18,7 @@ class DishDetailScreen extends StatefulWidget {
 class _DishDetailScreenState extends State<DishDetailScreen> {
   final OrderController _orderController = OrderController();
   final AuthController _authController = AuthController();
-  
+
   int _quantity = 1;
   bool _isLoading = false;
 
@@ -61,16 +61,16 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order placed successfully!')),
         );
-        
+
         // Navigate to My Orders screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MyOrdersScreen()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to place order')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to place order')));
       }
     }
   }
@@ -79,9 +79,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Dish Details'),
-      ),
+      appBar: AppBar(title: const Text('Dish Details')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -100,7 +98,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     )
                   : const Icon(Icons.image, size: 100),
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(20.0), // Reduced from 24 to 20
               child: Column(
@@ -110,12 +108,11 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                   Text(
                     widget.dish.name,
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontSize: 24, // Reduced from 28 to 24
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontSize: 24, // Reduced from 28 to 24
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 6), // Reduced from 8
-                  
                   // Price
                   Text(
                     'Rs. ${widget.dish.price.toStringAsFixed(0)}',
@@ -126,7 +123,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16), // Reduced from 24
-                  
                   // Description
                   Text(
                     'Description',
@@ -138,7 +134,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 20), // Reduced from 32
-                  
                   // Quantity Selector
                   Text(
                     'Quantity',
@@ -154,7 +149,10 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                         color: AppTheme.mutedSaffron,
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           border: Border.all(color: AppTheme.mutedSaffron),
                           borderRadius: BorderRadius.circular(8),
@@ -176,7 +174,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 20), // Reduced from 32
-                  
                   // Total Price
                   Container(
                     padding: const EdgeInsets.all(14), // Reduced from 16
@@ -206,7 +203,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 20), // Reduced from 24
-                  
                   // Place Order Button
                   SizedBox(
                     width: double.infinity,

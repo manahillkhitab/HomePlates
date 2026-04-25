@@ -33,7 +33,7 @@ class SpeechService {
         },
         listenFor: const Duration(seconds: 30),
         pauseFor: const Duration(seconds: 5),
-        partialResults: true,
+        listenOptions: stt.SpeechListenOptions(partialResults: true),
       );
     }
   }

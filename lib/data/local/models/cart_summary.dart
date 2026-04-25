@@ -14,11 +14,7 @@ class CartSummary extends HiveObject {
   @HiveField(2)
   final DateTime? scheduledTime;
 
-  CartSummary({
-    required this.items,
-    this.chefId,
-    this.scheduledTime,
-  });
+  CartSummary({required this.items, this.chefId, this.scheduledTime});
 
   double get total => items.fold(0, (sum, item) {
     final optionsPrice = item.selectedOptions.fold(0.0, (s, o) => s + o.price);

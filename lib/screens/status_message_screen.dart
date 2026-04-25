@@ -12,11 +12,8 @@ import '../utils/routes.dart';
 
 class StatusMessageScreen extends ConsumerWidget {
   final UserStatus status;
-  
-  const StatusMessageScreen({
-    super.key, 
-    required this.status,
-  });
+
+  const StatusMessageScreen({super.key, required this.status});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,18 +27,27 @@ class StatusMessageScreen extends ConsumerWidget {
       if (nextUser != null && nextUser.status == UserStatus.approved) {
         Widget home;
         switch (nextUser.role) {
-          case UserRole.customer: home = CustomerHomeScreen(); break;
-          case UserRole.chef: home = ChefHomeScreen(); break;
-          case UserRole.rider: home = RiderHomeScreen(); break;
-          default: home = const RoleSelectionScreen();
+          case UserRole.customer:
+            home = CustomerHomeScreen();
+            break;
+          case UserRole.chef:
+            home = ChefHomeScreen();
+            break;
+          case UserRole.rider:
+            home = RiderHomeScreen();
+            break;
+          default:
+            home = const RoleSelectionScreen();
         }
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => home));
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => home));
       }
     });
 
     // Use current user status if available, fallback to passed status
     final currentStatus = user?.status ?? status;
-    
+
     String title;
     String message;
     IconData icon;
@@ -50,19 +56,22 @@ class StatusMessageScreen extends ConsumerWidget {
     switch (currentStatus) {
       case UserStatus.pending:
         title = 'Approval Pending';
-        message = 'Your application is being reviewed by our team. Please check back in 24-48 hours.';
+        message =
+            'Your application is being reviewed by our team. Please check back in 24-48 hours.';
         icon = Icons.hourglass_empty_rounded;
         color = Colors.orange;
         break;
       case UserStatus.rejected:
         title = 'Application Rejected';
-        message = 'We regret to inform you that your application was not approved. Contact support for details.';
+        message =
+            'We regret to inform you that your application was not approved. Contact support for details.';
         icon = Icons.cancel_rounded;
         color = Colors.red;
         break;
       case UserStatus.blocked:
         title = 'Account Blocked';
-        message = 'Your account has been suspended for violating our terms of service.';
+        message =
+            'Your account has been suspended for violating our terms of service.';
         icon = Icons.block_rounded;
         color = Colors.redAccent;
         break;
@@ -103,7 +112,9 @@ class StatusMessageScreen extends ConsumerWidget {
               message,
               style: GoogleFonts.outfit(
                 fontSize: 16,
-                color: isDark ? Colors.white70 : AppTheme.warmCharcoal.withValues(alpha: 0.6),
+                color: isDark
+                    ? Colors.white70
+                    : AppTheme.warmCharcoal.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
                 height: 1.5,
               ),
@@ -118,10 +129,18 @@ class StatusMessageScreen extends ConsumerWidget {
                   backgroundColor: AppTheme.primaryGold,
                   foregroundColor: AppTheme.warmCharcoal,
                   padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   elevation: 0,
                 ),
-                child: const Text('REFRESH STATUS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                child: const Text(
+                  'REFRESH STATUS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),

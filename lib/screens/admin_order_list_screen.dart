@@ -14,7 +14,8 @@ class AdminOrderListScreen extends ConsumerStatefulWidget {
   const AdminOrderListScreen({super.key});
 
   @override
-  ConsumerState<AdminOrderListScreen> createState() => _AdminOrderListScreenState();
+  ConsumerState<AdminOrderListScreen> createState() =>
+      _AdminOrderListScreenState();
 }
 
 class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
@@ -31,27 +32,31 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
 
   Future<void> _fetchOrders() async {
     setState(() => _isLoading = true);
-    
+
     // 1. Initial Load from Hive (Local Database)
     try {
       final orderBox = Hive.box<OrderModel>(AppConstants.orderBox);
       if (orderBox.isNotEmpty) {
         setState(() {
-          _orders = orderBox.values.map((o) => {
-            'id': o.id,
-            'customer_id': o.customerId,
-            'chef_id': o.chefId,
-            'dish_id': o.dishId,
-            'dish_name': o.dishName,
-            'dish_image_path': o.dishImagePath,
-            'quantity': o.quantity,
-            'total_price': o.totalPrice,
-            'status': o.status.name,
-            'created_at': o.createdAt.toIso8601String(),
-            'rider_id': o.riderId,
-            'refund_status': o.refundStatus.name,
-            'cancel_reason': o.cancelReason,
-          }).toList();
+          _orders = orderBox.values
+              .map(
+                (o) => {
+                  'id': o.id,
+                  'customer_id': o.customerId,
+                  'chef_id': o.chefId,
+                  'dish_id': o.dishId,
+                  'dish_name': o.dishName,
+                  'dish_image_path': o.dishImagePath,
+                  'quantity': o.quantity,
+                  'total_price': o.totalPrice,
+                  'status': o.status.name,
+                  'created_at': o.createdAt.toIso8601String(),
+                  'rider_id': o.riderId,
+                  'refund_status': o.refundStatus?.name,
+                  'cancel_reason': o.cancelReason,
+                },
+              )
+              .toList();
         });
       }
     } catch (e) {
@@ -64,7 +69,7 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
           .from('orders')
           .select()
           .order('created_at', ascending: false);
-      
+
       if (mounted) {
         setState(() {
           _orders = res as List<dynamic>;
@@ -76,18 +81,27 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to fetch latest orders. Showing local data.')),
+          const SnackBar(
+            content: Text('Failed to fetch latest orders. Showing local data.'),
+          ),
         );
       }
     }
   }
 
-  Future<void> _updateOrderStatus(Map<String, dynamic> orderData, String newStatusStr) async {
+  Future<void> _updateOrderStatus(
+    Map<String, dynamic> orderData,
+    String newStatusStr,
+  ) async {
     try {
-      final newStatus = OrderStatus.values.firstWhere((e) => e.name.toLowerCase() == newStatusStr.toLowerCase(), orElse: () => OrderStatus.pending);
+      final newStatus = OrderStatus.values.firstWhere(
+        (e) => e.name.toLowerCase() == newStatusStr.toLowerCase(),
+        orElse: () => OrderStatus.pending,
+      );
       final qty = int.tryParse(orderData['quantity']?.toString() ?? '1') ?? 1;
-      final totalP = double.tryParse(orderData['total_price']?.toString() ?? '0') ?? 0.0;
-      
+      final totalP =
+          double.tryParse(orderData['total_price']?.toString() ?? '0') ?? 0.0;
+
       final order = OrderModel(
         id: orderData['id']?.toString() ?? '',
         customerId: orderData['customer_id']?.toString() ?? '',
@@ -98,46 +112,75 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
         quantity: qty,
         pricePerItem: totalP / (qty > 0 ? qty : 1),
         totalPrice: totalP,
-        status: OrderStatus.values.firstWhere((e) => e.name.toLowerCase() == orderData['status']?.toString().toLowerCase(), orElse: () => OrderStatus.pending),
-        createdAt: DateTime.tryParse(orderData['created_at']?.toString() ?? '') ?? DateTime.now(),
+        status: OrderStatus.values.firstWhere(
+          (e) =>
+              e.name.toLowerCase() ==
+              orderData['status']?.toString().toLowerCase(),
+          orElse: () => OrderStatus.pending,
+        ),
+        createdAt:
+            DateTime.tryParse(orderData['created_at']?.toString() ?? '') ??
+            DateTime.now(),
         riderId: orderData['rider_id']?.toString(),
       );
 
       final currentUser = ref.read(authProvider).value;
       if (currentUser != null) {
-        await ref.read(orderProvider.notifier).updateOrderStatus(
-          order: order, 
-          newStatus: newStatus, 
-          currentUser: currentUser,
-        );
-        
+        await ref
+            .read(orderProvider.notifier)
+            .updateOrderStatus(
+              order: order,
+              newStatus: newStatus,
+              currentUser: currentUser,
+            );
+
         // Also update Supabase for global consistency
-        await _supabase.from('orders').update({'status': newStatus.name}).eq('id', order.id);
-        
+        await _supabase
+            .from('orders')
+            .update({'status': newStatus.name})
+            .eq('id', order.id);
+
         await _fetchOrders();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order status updated to ${newStatus.name}')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Order status updated to ${newStatus.name}'),
+            ),
+          );
         }
       }
     } catch (e) {
       debugPrint('Error updating order status: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update order status. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update order status. Please try again.'),
+          ),
+        );
       }
     }
   }
 
   Future<void> _updateRefundStatus(String orderId, String refundStatus) async {
     try {
-      await _supabase.from('orders').update({'refund_status': refundStatus}).eq('id', orderId);
+      await _supabase
+          .from('orders')
+          .update({'refund_status': refundStatus})
+          .eq('id', orderId);
       await _fetchOrders();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Refund status updated to $refundStatus')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Refund status updated to $refundStatus')),
+        );
       }
     } catch (e) {
       debugPrint('Error updating refund status: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update refund status. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update refund status. Please try again.'),
+          ),
+        );
       }
     }
   }
@@ -157,7 +200,10 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('System Orders', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text(
+          'System Orders',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -187,55 +233,84 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
           const SizedBox(height: 16),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryGold,
+                    ),
+                  )
                 : _filteredOrders.isEmpty
-                    ? Center(child: Text('No orders found', style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5))))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _filteredOrders.length,
-                        itemBuilder: (context, index) {
-                          final order = _filteredOrders[index];
-                          final status = order['status']?.toString() ?? 'pending';
-                          final price = double.tryParse(order['total_price']?.toString() ?? '0') ?? 0.0;
-                          
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            elevation: 0,
-                            color: isDark ? AppTheme.darkCard : Colors.white,
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(12),
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(status).withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(_getStatusIcon(status), color: _getStatusColor(status)),
-                              ),
-                              title: Text(order['dish_name'] ?? 'Dish', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Rs. ${price.toStringAsFixed(0)} • Qty: ${order['quantity']}'),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    status.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
-                                      color: _getStatusColor(status),
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () => _showOrderDetail(order),
-                            ),
-                          );
-                        },
+                ? Center(
+                    child: Text(
+                      'No orders found',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredOrders.length,
+                    itemBuilder: (context, index) {
+                      final order = _filteredOrders[index];
+                      final status = order['status']?.toString() ?? 'pending';
+                      final price =
+                          double.tryParse(
+                            order['total_price']?.toString() ?? '0',
+                          ) ??
+                          0.0;
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                        color: isDark ? AppTheme.darkCard : Colors.white,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(12),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(
+                                status,
+                              ).withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _getStatusIcon(status),
+                              color: _getStatusColor(status),
+                            ),
+                          ),
+                          title: Text(
+                            order['dish_name'] ?? 'Dish',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Rs. ${price.toStringAsFixed(0)} • Qty: ${order['quantity']}',
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                status.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: _getStatusColor(status),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _showOrderDetail(order),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -260,26 +335,40 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending': return Colors.grey;
-      case 'accepted': return Colors.blue;
-      case 'cooking': return Colors.orange;
-      case 'ready': return Colors.amber;
-      case 'pickedup': return Colors.purple;
-      case 'delivered': return Colors.green;
-      case 'rejected': return Colors.red;
-      case 'canceled': return Colors.redAccent;
-      default: return Colors.grey;
+      case 'pending':
+        return Colors.grey;
+      case 'accepted':
+        return Colors.blue;
+      case 'cooking':
+        return Colors.orange;
+      case 'ready':
+        return Colors.amber;
+      case 'pickedup':
+        return Colors.purple;
+      case 'delivered':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      case 'canceled':
+        return Colors.redAccent;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
-      case 'pending': return Icons.timer_outlined;
-      case 'cooking': return Icons.restaurant;
-      case 'delivered': return Icons.check_circle_outline;
+      case 'pending':
+        return Icons.timer_outlined;
+      case 'cooking':
+        return Icons.restaurant;
+      case 'delivered':
+        return Icons.check_circle_outline;
       case 'rejected':
-      case 'canceled': return Icons.cancel_outlined;
-      default: return Icons.receipt_long;
+      case 'canceled':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.receipt_long;
     }
   }
 
@@ -287,7 +376,9 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -298,27 +389,56 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
               child: Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            Text('Order Review', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              'Order Review',
+              style: GoogleFonts.outfit(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 24),
-            _detailRow('Order ID', (order['id']?.toString().length ?? 0) >= 8 ? order['id'].toString().substring(0, 8).toUpperCase() : order['id']?.toString().toUpperCase() ?? 'N/A'),
+            _detailRow(
+              'Order ID',
+              (order['id']?.toString().length ?? 0) >= 8
+                  ? order['id'].toString().substring(0, 8).toUpperCase()
+                  : order['id']?.toString().toUpperCase() ?? 'N/A',
+            ),
             _detailRow('Dish', order['dish_name']?.toString() ?? 'Unknown'),
             _detailRow('Total Price', 'Rs. ${order['total_price'] ?? 0}'),
-            _detailRow('Status', (order['status']?.toString() ?? 'pending').toUpperCase()),
-            _detailRow('Customer ID', order['customer_id']?.toString() ?? 'N/A'),
+            _detailRow(
+              'Status',
+              (order['status']?.toString() ?? 'pending').toUpperCase(),
+            ),
+            _detailRow(
+              'Customer ID',
+              order['customer_id']?.toString() ?? 'N/A',
+            ),
             _detailRow('Chef ID', order['chef_id']?.toString() ?? 'N/A'),
             _detailRow('Placed At', () {
-              final dateStr = (DateTime.tryParse(order['created_at']?.toString() ?? '') ?? DateTime.now()).toLocal().toString();
+              final dateStr =
+                  (DateTime.tryParse(order['created_at']?.toString() ?? '') ??
+                          DateTime.now())
+                      .toLocal()
+                      .toString();
               return dateStr.length >= 16 ? dateStr.substring(0, 16) : dateStr;
             }()),
-            _detailRow('Refund Status', (order['refund_status']?.toString() ?? 'none').toUpperCase()),
+            _detailRow(
+              'Refund Status',
+              (order['refund_status']?.toString() ?? 'none').toUpperCase(),
+            ),
             if (order['cancel_reason'] != null)
               _detailRow('Cancel Reason', order['cancel_reason']),
             const SizedBox(height: 32),
-            if (order['status'] != 'canceled' && order['status'] != 'delivered' && order['status'] != 'rejected')
+            if (order['status'] != 'canceled' &&
+                order['status'] != 'delivered' &&
+                order['status'] != 'rejected')
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -330,9 +450,14 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('FORCE CANCEL ORDER', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'FORCE CANCEL ORDER',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             const SizedBox(height: 12),
@@ -345,7 +470,10 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                         Navigator.pop(context);
                         _updateRefundStatus(order['id'], 'full');
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
                       child: const Text('REFUND FULL'),
                     ),
                   ),
@@ -356,7 +484,10 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                         Navigator.pop(context);
                         _updateRefundStatus(order['id'], 'partial');
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                      ),
                       child: const Text('REFUND PARTIAL'),
                     ),
                   ),
@@ -371,9 +502,14 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
                   backgroundColor: AppTheme.primaryGold,
                   foregroundColor: AppTheme.warmCharcoal,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
-                child: const Text('CLOSE', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'CLOSE',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],
@@ -388,7 +524,13 @@ class _AdminOrderListScreenState extends ConsumerState<AdminOrderListScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),

@@ -14,6 +14,9 @@ class AppButton extends StatefulWidget {
   final bool isExpanded;
   final IconData? icon;
   final double? height;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final TextStyle? textStyle;
 
   const AppButton.primary({
     super.key,
@@ -23,6 +26,9 @@ class AppButton extends StatefulWidget {
     this.isExpanded = false,
     this.icon,
     this.height,
+    this.backgroundColor,
+    this.borderColor,
+    this.textStyle,
   }) : variant = AppButtonVariant.primary;
 
   const AppButton.secondary({
@@ -33,6 +39,9 @@ class AppButton extends StatefulWidget {
     this.isExpanded = false,
     this.icon,
     this.height,
+    this.backgroundColor,
+    this.borderColor,
+    this.textStyle,
   }) : variant = AppButtonVariant.secondary;
 
   const AppButton.destructive({
@@ -43,6 +52,9 @@ class AppButton extends StatefulWidget {
     this.isExpanded = false,
     this.icon,
     this.height,
+    this.backgroundColor,
+    this.borderColor,
+    this.textStyle,
   }) : variant = AppButtonVariant.destructive;
 
   const AppButton.text({
@@ -53,13 +65,17 @@ class AppButton extends StatefulWidget {
     this.isExpanded = false,
     this.icon,
     this.height,
+    this.backgroundColor,
+    this.borderColor,
+    this.textStyle,
   }) : variant = AppButtonVariant.text;
 
   @override
   State<AppButton> createState() => _AppButtonState();
 }
 
-class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMixin {
+class _AppButtonState extends State<AppButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -70,9 +86,10 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       duration: AppTheme.animationFast,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -122,14 +139,19 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
             ),
           )
         : Row(
-            mainAxisSize: widget.isExpanded ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisSize: widget.isExpanded
+                ? MainAxisSize.max
+                : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.icon != null) ...[
                 Icon(widget.icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(widget.text, style: AppTextStyles.button()),
+              Text(
+                widget.text,
+                style: widget.textStyle ?? AppTextStyles.button(),
+              ),
             ],
           );
 
@@ -153,20 +175,21 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       ),
     );
 
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: button,
-    );
+    return ScaleTransition(scale: _scaleAnimation, child: button);
   }
 
   _ButtonStyle _getButtonStyle(bool isDark, bool isDisabled) {
     if (isDisabled) {
       return _ButtonStyle(
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
         ),
-        textColor: isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3),
+        textColor: isDark
+            ? Colors.white.withValues(alpha: 0.3)
+            : Colors.black.withValues(alpha: 0.3),
       );
     }
 
@@ -174,24 +197,34 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       case AppButtonVariant.primary:
         return _ButtonStyle(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppTheme.primaryGold, AppTheme.accentSaffron],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: widget.backgroundColor,
+            gradient: widget.backgroundColor == null
+                ? const LinearGradient(
+                    colors: [AppTheme.primaryGold, AppTheme.accentSaffron],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            border: widget.borderColor != null
+                ? Border.all(color: widget.borderColor!)
+                : null,
             borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
             boxShadow: AppTheme.shadowMd(isDark),
           ),
-          textColor: AppTheme.warmCharcoal,
+          textColor: widget.textStyle?.color ?? AppTheme.warmCharcoal,
         );
 
       case AppButtonVariant.secondary:
         return _ButtonStyle(
           decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.primaryGold, width: 2),
+            color: widget.backgroundColor,
+            border: Border.all(
+              color: widget.borderColor ?? AppTheme.primaryGold,
+              width: 2,
+            ),
             borderRadius: BorderRadius.circular(AppTheme.buttonRadius),
           ),
-          textColor: AppTheme.primaryGold,
+          textColor: widget.textStyle?.color ?? AppTheme.primaryGold,
         );
 
       case AppButtonVariant.destructive:

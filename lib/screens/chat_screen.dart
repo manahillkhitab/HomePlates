@@ -37,13 +37,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (text.isEmpty) return;
 
     final currentUser = ref.read(authProvider).value!;
-    final conversationId = getConversationId(currentUser.id, widget.otherUserId);
-    
-    ref.read(chatProvider(conversationId).notifier).sendMessage(
-      senderId: currentUser.id,
-      receiverId: widget.otherUserId,
-      text: text,
+    final conversationId = getConversationId(
+      currentUser.id,
+      widget.otherUserId,
     );
+
+    ref
+        .read(chatProvider(conversationId).notifier)
+        .sendMessage(
+          senderId: currentUser.id,
+          receiverId: widget.otherUserId,
+          text: text,
+        );
 
     _messageController.clear();
     _scrollToBottom();
@@ -62,9 +67,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
-    if (currentUser == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (currentUser == null)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
-    final conversationId = getConversationId(currentUser.id, widget.otherUserId);
+    final conversationId = getConversationId(
+      currentUser.id,
+      widget.otherUserId,
+    );
     final messages = ref.watch(chatProvider(conversationId));
 
     // Mark messages as read
@@ -84,11 +93,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           children: [
             Text(
               widget.otherUserName,
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 18, color: AppTheme.warmCharcoal),
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: AppTheme.warmCharcoal,
+              ),
             ),
             Text(
               'Online',
-              style: GoogleFonts.outfit(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w500),
+              style: GoogleFonts.outfit(
+                fontSize: 12,
+                color: Colors.green,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -122,14 +139,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         decoration: BoxDecoration(
           color: isMe ? AppTheme.primaryGold : Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-            bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
+            bottomLeft: isMe
+                ? const Radius.circular(16)
+                : const Radius.circular(4),
+            bottomRight: isMe
+                ? const Radius.circular(4)
+                : const Radius.circular(16),
           ),
           boxShadow: [
             BoxShadow(
@@ -204,7 +227,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   decoration: const InputDecoration(
                     hintText: 'Type a message...',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                   textCapitalization: TextCapitalization.sentences,
                 ),
@@ -217,7 +243,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: AppTheme.warmCharcoal),
+                icon: const Icon(
+                  Icons.send_rounded,
+                  color: AppTheme.warmCharcoal,
+                ),
                 onPressed: _sendMessage,
               ),
             ),
