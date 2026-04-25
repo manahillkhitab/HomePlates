@@ -320,7 +320,7 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                       if (order.customerName.isNotEmpty) ...[
+                      if (order.customerName.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           'For ${order.customerName}',

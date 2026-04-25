@@ -102,7 +102,9 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.2 : 0.05,
+                          ),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
