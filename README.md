@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/images/app_logo.png" alt="HomePlates Logo" width="150" />
+  <img src="./assets/images/app_logo.png" alt="HomePlates Logo" width="150" />
   <h1>HomePlates</h1>
   <p><strong>A Next-Generation Homemade Food Delivery & Culinary Community Platform</strong></p>
 
@@ -128,17 +128,16 @@ flutter test
 * GDPR compliant data handling protocols in synchronization services.
 
 
-## 📸 Project Showcase
-
-> [!NOTE]
-> This section is reserved for real screenshots of the application running on a device. To showcase your work, replace these placeholders with your own authentic screenshots!
+## 📸 Showcase
 
 <div align="center">
+  <img src="docs/showcase/4_Main_Showcase.png" alt="Showcase" width="800" />
+  <br><br>
   <table style="width: 100%">
     <tr>
-      <td align="center"><img src="https://via.placeholder.com/300x600?text=Customer+App+Screenshot" width="200" /><br><b>Customer App</b></td>
-      <td align="center"><img src="https://via.placeholder.com/300x600?text=Chef+Dashboard+Screenshot" width="200" /><br><b>Chef Dashboard</b></td>
-      <td align="center"><img src="https://via.placeholder.com/300x600?text=Rider+Tracking+Screenshot" width="200" /><br><b>Rider Tracking</b></td>
+      <td align="center"><img src="docs/showcase/1_Customer_Home.png" width="200" /><br><b>Customer App</b></td>
+      <td align="center"><img src="docs/showcase/2_Chef_Dashboard.png" width="200" /><br><b>Chef Dashboard</b></td>
+      <td align="center"><img src="docs/showcase/3_Rider_Tracking.png" width="200" /><br><b>Rider Tracking</b></td>
     </tr>
   </table>
 </div>
