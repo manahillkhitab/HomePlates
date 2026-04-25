@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/social_provider.dart';
-import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -58,9 +57,6 @@ class CommunityFeedScreen extends ConsumerWidget {
           : RefreshIndicator(
               onRefresh: () async {
                 // Reload posts
-                final notifier = ref.read(socialProvider.notifier);
-                // We might need a method to force reload in notifier, essentially just re-reading box
-                // Since it's Hive-based, it's already sync, but we can simulate network fetch
                 await Future.delayed(const Duration(seconds: 1));
               },
               color: AppTheme.primaryGold,

@@ -296,8 +296,9 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       final enriched = orders.map((order) {
         if (order.dishImagePath.isEmpty) {
           final dish = dishes.firstWhereOrNull((d) => d.id == order.dishId);
-          if (dish != null)
+          if (dish != null) {
             return order.copyWith(dishImagePath: dish.imagePath);
+          }
         }
         return order;
       }).toList();
@@ -317,8 +318,9 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
       final enriched = orders.map((order) {
         if (order.dishImagePath.isEmpty) {
           final dish = dishes.firstWhereOrNull((d) => d.id == order.dishId);
-          if (dish != null)
+          if (dish != null) {
             return order.copyWith(dishImagePath: dish.imagePath);
+          }
         }
         return order;
       }).toList();
@@ -570,33 +572,40 @@ class OrderNotifier extends AsyncNotifier<List<OrderModel>> {
     switch (user.role) {
       case UserRole.chef:
         if (newStatus == OrderStatus.accepted &&
-            order.status == OrderStatus.pending)
+            order.status == OrderStatus.pending) {
           return true;
+        }
         if (newStatus == OrderStatus.cooking &&
-            order.status == OrderStatus.accepted)
+            order.status == OrderStatus.accepted) {
           return true;
+        }
         if (newStatus == OrderStatus.ready &&
-            order.status == OrderStatus.cooking)
+            order.status == OrderStatus.cooking) {
           return true;
+        }
         if (newStatus == OrderStatus.rejected &&
-            order.status == OrderStatus.pending)
+            order.status == OrderStatus.pending) {
           return true;
+        }
         return false;
 
       case UserRole.rider:
         if (newStatus == OrderStatus.pickedUp &&
-            order.status == OrderStatus.ready)
+            order.status == OrderStatus.ready) {
           return true;
+        }
         if (newStatus == OrderStatus.delivered &&
-            order.status == OrderStatus.pickedUp)
+            order.status == OrderStatus.pickedUp) {
           return true;
+        }
         return false;
 
       case UserRole.customer:
         // Customer Rule: Only cancel if pending
         if (newStatus == OrderStatus.canceled &&
-            order.status == OrderStatus.pending)
+            order.status == OrderStatus.pending) {
           return true;
+        }
         return false;
       case UserRole.admin:
         // Admin can do anything

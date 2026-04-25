@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../utils/app_theme.dart';
-import '../data/local/models/transaction_model.dart';
 
 class AdminPayoutsScreen extends StatefulWidget {
   const AdminPayoutsScreen({super.key});

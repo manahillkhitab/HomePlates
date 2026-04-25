@@ -9,7 +9,6 @@ import '../providers/auth_provider.dart';
 import '../providers/order_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/app_text_styles.dart';
-import '../utils/app_spacing.dart';
 import '../utils/constants.dart';
 import 'leave_review_screen.dart';
 import '../widgets/live_map_widget.dart';
@@ -159,12 +158,11 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            if (liveOrder.items != null &&
-                                liveOrder.items!.isNotEmpty) ...[
+                            if (liveOrder.items.isNotEmpty) ...[
                               const SizedBox(height: 16),
                               const Divider(),
                               const SizedBox(height: 16),
-                              ...liveOrder.items!.map(
+                              ...liveOrder.items.map(
                                 (item) => Padding(
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: Row(
@@ -708,7 +706,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   void _showFakeCall(BuildContext context, String role) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Dialing ${role}\'s number... 📞')));
+    ).showSnackBar(SnackBar(content: Text('Dialing $role\'s number... 📞')));
   }
 
   void _openChat(BuildContext context, String role) {
@@ -720,7 +718,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
     // For now, we use the order's IDs.
 
     String? targetId;
-    String targetName = '$role';
+    String targetName = role;
 
     if (role == 'Chef') {
       targetId = widget.order.chefId;

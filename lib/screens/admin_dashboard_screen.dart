@@ -128,8 +128,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       for (var u in users) {
         if (u['status']?.toString().toLowerCase() == 'pending') pending++;
         if (u['role']?.toString().toLowerCase() == 'rider' &&
-            u['status']?.toString().toLowerCase() == 'approved')
+            u['status']?.toString().toLowerCase() == 'approved') {
           riders++;
+        }
       }
 
       double totalRev = 0;

@@ -70,7 +70,7 @@ class DishModel extends HiveObject {
     this.isPromoted = false,
     this.prepTimeMinutes = 30,
     DateTime? updatedAt,
-  }) : this.updatedAt = updatedAt ?? DateTime.now();
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   DishModel copyWith({
     String? id,

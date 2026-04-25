@@ -96,6 +96,7 @@ class OrderController extends ChangeNotifier {
         );
         break;
       case OrderStatus.pending:
+      default:
         break;
     }
   }

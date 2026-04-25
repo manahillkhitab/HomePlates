@@ -142,13 +142,15 @@ class UserModel extends HiveObject {
 
   // Helper to check if a specific role is approved
   bool isRoleApproved(UserRole targetRole) {
-    if (targetRole == UserRole.admin)
+    if (targetRole == UserRole.admin) {
       return isAdmin ||
           rolesData[UserRole.admin.name] == 'approved' ||
           rolesData[UserRole.admin.name] == true ||
           rolesData[UserRole.admin.name] == 'true';
-    if (targetRole == UserRole.customer)
+    }
+    if (targetRole == UserRole.customer) {
       return true; // Customers are always approved
+    }
 
     final val = rolesData[targetRole.name];
     return val == 'approved' || val == true || val == 'true';
@@ -156,12 +158,13 @@ class UserModel extends HiveObject {
 
   // Helper to check if user HAS a role (pending or approved)
   bool hasRole(UserRole targetRole) {
-    if (targetRole == UserRole.admin)
+    if (targetRole == UserRole.admin) {
       return isAdmin ||
           (rolesData[UserRole.admin.name] != null &&
               rolesData[UserRole.admin.name] != false &&
               rolesData[UserRole.admin.name] != 'none' &&
               rolesData[UserRole.admin.name] != 'false');
+    }
     if (targetRole == UserRole.customer) return true;
     final val = rolesData[targetRole.name];
     return val != null && val != 'none' && val != false && val != 'false';
@@ -244,8 +247,9 @@ class UserModel extends HiveObject {
       rolesHelper = {'customer': true};
       final oldRole = json['role'] as String?;
       if (oldRole == 'chef') rolesHelper['chef'] = json['status'] ?? 'pending';
-      if (oldRole == 'rider')
+      if (oldRole == 'rider') {
         rolesHelper['rider'] = json['status'] ?? 'pending';
+      }
     }
 
     // 3. Determine Status based on Active Role

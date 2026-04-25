@@ -487,8 +487,9 @@ class SyncService {
   /// FIX #6: A single timestamp is captured once and used for both the
   /// cloud update and the local Hive write, ensuring consistency.
   Future<String?> claimOrder(String orderId, String riderId) async {
-    if (!await isOnline)
+    if (!await isOnline) {
       return 'Offline: Cannot claim order while disconnected';
+    }
     debugPrint('🚀 CLAIM ATTEMPT: orderId=$orderId, riderId=$riderId');
     try {
       // FIX #6: Single timestamp for both cloud and local

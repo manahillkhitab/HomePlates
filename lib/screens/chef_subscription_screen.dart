@@ -15,8 +15,9 @@ class ChefSubscriptionScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    if (user == null)
+    if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -49,9 +50,9 @@ class ChefSubscriptionScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            ...SubscriptionModel.availableTiers
-                .map((tier) => _buildTierCard(context, ref, user, tier, isDark))
-                .toList(),
+            ...SubscriptionModel.availableTiers.map(
+              (tier) => _buildTierCard(context, ref, user, tier, isDark),
+            ),
           ],
         ),
       ),
@@ -187,31 +188,29 @@ class ChefSubscriptionScreen extends ConsumerWidget {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(),
             ),
-            ...tier.perks
-                .map(
-                  (perk) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle_rounded,
-                          color: Colors.green,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          perk,
-                          style: GoogleFonts.outfit(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+            ...tier.perks.map(
+              (perk) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                      size: 18,
                     ),
-                  ),
-                )
-                .toList(),
+                    const SizedBox(width: 12),
+                    Text(
+                      perk,
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,

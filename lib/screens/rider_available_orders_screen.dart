@@ -264,7 +264,7 @@ class _RiderAvailableOrdersScreenState
             ),
           ),
 
-          if (order.deliveryAddress != null)
+          if (order.deliveryAddress.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
@@ -308,7 +308,7 @@ class _RiderAvailableOrdersScreenState
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'PICKUP: ${order.chefName ?? "Home Kitchen"}',
+                          'PICKUP: ${order.chefName}',
                           style:
                               AppTextStyles.labelMedium(
                                 color: Colors.greenAccent,

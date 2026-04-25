@@ -102,7 +102,7 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -170,7 +170,7 @@ class _LeaveReviewScreenState extends ConsumerState<LeaveReviewScreen> {
                             letterSpacing: -0.5,
                           ),
                         ),
-                        if (widget.order.chefName != null) ...[
+                        if (widget.order.chefName.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
                             'by ${widget.order.chefName}',

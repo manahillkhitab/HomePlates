@@ -178,7 +178,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                   Container(
                     padding: const EdgeInsets.all(14), // Reduced from 16
                     decoration: BoxDecoration(
-                      color: AppTheme.mutedSaffron.withOpacity(0.1),
+                      color: AppTheme.mutedSaffron.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

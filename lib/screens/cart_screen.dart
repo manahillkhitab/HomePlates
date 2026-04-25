@@ -356,12 +356,13 @@ class CartScreen extends ConsumerWidget {
     String url =
         'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80';
 
-    if (name.contains('donuts'))
+    if (name.contains('donuts')) {
       url =
           'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=200&q=80';
-    else if (name.contains('pulao') || name.contains('rice'))
+    } else if (name.contains('pulao') || name.contains('rice')) {
       url =
           'https://images.unsplash.com/photo-1512058560566-d8b437bfb1d8?auto=format&fit=crop&w=200&q=80';
+    }
 
     return Image.network(
       url,

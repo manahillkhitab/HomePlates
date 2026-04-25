@@ -145,7 +145,7 @@ class OrderModel extends HiveObject {
     this.refundStatus,
     DateTime? updatedAt,
     this.deliveryFee = 0.0,
-  }) : this.updatedAt = updatedAt ?? DateTime.now();
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   OrderModel copyWith({
     String? id,

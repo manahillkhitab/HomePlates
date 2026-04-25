@@ -180,7 +180,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               decoration: BoxDecoration(
                                 color: _getStatusColor(
                                   order.status,
-                                ).withOpacity(0.2),
+                                ).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: _getStatusColor(order.status),

@@ -67,8 +67,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
-    if (currentUser == null)
+    if (currentUser == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     final conversationId = getConversationId(
       currentUser.id,

@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.delete_outline),
             onPressed: () async {
               await _controller.clearAllSamples();
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('All data cleared!')),
                 );
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(
                     Icons.inbox_outlined,
                     size: 80,
-                    color: AppTheme.mutedSaffron.withOpacity(0.5),
+                    color: AppTheme.mutedSaffron.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
                       await _controller.deleteSample(sample.id);
-                      if (mounted) {
+                      if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Item deleted')),
                         );
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await _controller.addSample();
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(content: Text('Sample data added!')));

@@ -561,27 +561,26 @@ class _CheckoutReviewScreenState extends ConsumerState<CheckoutReviewScreen> {
               : null,
         );
 
-    if (mounted) {
-      setState(() => _isPlacingOrder = false);
-      if (success) {
-        await ref.read(cartProvider.notifier).clearCart();
-        if (!context.mounted) return;
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const MyOrdersScreen()),
-          (route) => route.isFirst,
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order placed successfully! 🚀')),
-        );
-      } else {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to place order. Please try again.'),
-          ),
-        );
-      }
+    if (!mounted) return;
+    setState(() => _isPlacingOrder = false);
+
+    if (success) {
+      await ref.read(cartProvider.notifier).clearCart();
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MyOrdersScreen()),
+        (route) => route.isFirst,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order placed successfully! 🚀')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to place order. Please try again.'),
+        ),
+      );
     }
   }
 }

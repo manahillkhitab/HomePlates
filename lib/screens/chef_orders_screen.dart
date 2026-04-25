@@ -189,11 +189,13 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
               final sortedOrders = ordersList.toList()
                 ..sort((a, b) {
                   if (a.status == OrderStatus.pending &&
-                      b.status != OrderStatus.pending)
+                      b.status != OrderStatus.pending) {
                     return -1;
+                  }
                   if (a.status != OrderStatus.pending &&
-                      b.status == OrderStatus.pending)
+                      b.status == OrderStatus.pending) {
                     return 1;
+                  }
                   return b.createdAt.compareTo(a.createdAt);
                 });
 
@@ -318,8 +320,7 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (order.customerName != null &&
-                          order.customerName!.isNotEmpty) ...[
+                       if (order.customerName.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           'For ${order.customerName}',
@@ -379,7 +380,7 @@ class _ChefOrdersScreenState extends ConsumerState<ChefOrdersScreen> {
             ),
           ),
 
-          if (order.deliveryAddress != null)
+          if (order.deliveryAddress.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
               child: Row(

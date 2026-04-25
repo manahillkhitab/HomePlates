@@ -160,7 +160,7 @@ class _RiderDeliveryHistoryScreenState
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -242,7 +242,7 @@ class _RiderDeliveryHistoryScreenState
                       ),
                     ],
                   ),
-                  if (order.deliveryAddress != null) ...[
+                  if (order.deliveryAddress.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -254,7 +254,7 @@ class _RiderDeliveryHistoryScreenState
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            order.deliveryAddress!,
+                            order.deliveryAddress,
                             style: GoogleFonts.outfit(
                               color: theme.colorScheme.onSurface.withValues(
                                 alpha: 0.7,

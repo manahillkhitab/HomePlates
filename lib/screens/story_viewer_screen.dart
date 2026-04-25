@@ -302,10 +302,10 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Message sent!')));
+          FocusScope.of(context).unfocus();
         }
       }
       _commentController.clear();
-      FocusScope.of(context).unfocus();
     }
   }
 

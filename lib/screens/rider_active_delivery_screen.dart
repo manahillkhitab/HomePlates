@@ -251,7 +251,7 @@ class _RiderActiveDeliveryScreenState
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -364,7 +364,7 @@ class _RiderActiveDeliveryScreenState
                   ],
                 ),
                 const SizedBox(height: 16),
-                if (order.deliveryAddress != null)
+                if (order.deliveryAddress.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -381,7 +381,7 @@ class _RiderActiveDeliveryScreenState
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            order.deliveryAddress!,
+                            order.deliveryAddress,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
@@ -432,14 +432,14 @@ class _RiderActiveDeliveryScreenState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  order.chefName ?? 'Home Chef',
+                  order.chefName,
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
                 Text(
-                  order.chefAddress ?? 'Address not available',
+                  order.chefAddress,
                   style: GoogleFonts.outfit(color: Colors.grey, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -515,14 +515,14 @@ class _RiderActiveDeliveryScreenState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  order.customerName ?? 'Valued Customer',
+                  order.customerName,
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
                 Text(
-                  order.deliveryAddress ?? 'Address not found',
+                  order.deliveryAddress,
                   style: GoogleFonts.outfit(color: Colors.grey, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -636,7 +636,7 @@ class _RiderActiveDeliveryScreenState
               final success = await ref
                   .read(orderProvider.notifier)
                   .unassignOrder(order);
-              if (success && mounted) {
+              if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Order returned to market.')),
                 );

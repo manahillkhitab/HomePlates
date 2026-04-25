@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../controllers/dish_controller.dart';
 import '../controllers/auth_controller.dart';
 import '../data/local/models/dish_model.dart';
 import '../utils/app_theme.dart';
@@ -16,13 +15,11 @@ class MyDishesScreen extends StatefulWidget {
 }
 
 class _MyDishesScreenState extends State<MyDishesScreen> {
-  late final DishController _dishController;
   late final AuthController _authController;
 
   @override
   void initState() {
     super.initState();
-    _dishController = DishController();
     _authController = AuthController();
 
     // Run migration to fix old dish IDs (one-time fix)
@@ -79,7 +76,7 @@ class _MyDishesScreenState extends State<MyDishesScreen> {
     final dishBox = Hive.box<DishModel>(AppConstants.dishBox);
     debugPrint('Dish box is open: ${dishBox.isOpen}');
     debugPrint('Total dishes in box: ${dishBox.length}');
-    debugPrint('All dish IDs in box: ${dishBox.keys.toList()}');
+    debugPrint('All dish IDs in box: ${dishBox.keys}');
 
     // Print all dishes with their chefIds
     for (var dish in dishBox.values) {

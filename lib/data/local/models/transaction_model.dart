@@ -67,7 +67,7 @@ class TransactionModel extends HiveObject {
     this.orderId,
     required this.createdAt,
     DateTime? updatedAt,
-  }) : this.updatedAt = updatedAt ?? DateTime.now();
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   @HiveField(7)
   final DateTime updatedAt;

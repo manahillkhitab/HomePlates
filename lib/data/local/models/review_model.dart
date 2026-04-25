@@ -45,7 +45,7 @@ class ReviewModel {
     required this.comment,
     required this.createdAt,
     DateTime? updatedAt,
-  }) : this.updatedAt = updatedAt ?? DateTime.now();
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   ReviewModel copyWith({
     String? id,
