@@ -17,6 +17,19 @@
 
 The architecture emphasizes strict separation of concerns, robust local-first caching strategies, and a scalable real-time backend powered by Supabase.
 
+## 🏗 Architecture Overview
+
+```mermaid
+graph TD
+    User((User)) --> UI[Flutter UI Layer]
+    UI --> Controllers[Riverpod Controllers/State]
+    Controllers --> Services[Service Layer]
+    Services --> LocalDB[(Hive Local Storage)]
+    Services --> RemoteDB[(Supabase Remote Backend)]
+    LocalDB <--> Sync[Sync Service]
+    Sync <--> RemoteDB
+```
+
 ## ✨ Key Features
 
 ### 🧑‍🍳 For Chefs
