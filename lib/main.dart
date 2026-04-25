@@ -46,8 +46,8 @@ class HomePlatesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      onGenerateTitle:
-          (context) => AppLocalizations.of(context)?.appTitle ?? AppConstants.appName,
+      onGenerateTitle: (context) =>
+          AppLocalizations.of(context)?.appTitle ?? AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -37,20 +37,22 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
     final String title;
 
     if (widget.dish != null) {
-      reviews =
-          allReviews.where((review) => review.dishId == widget.dish!.id).toList();
+      reviews = allReviews
+          .where((review) => review.dishId == widget.dish!.id)
+          .toList();
       rating = reviews.isEmpty
           ? 0.0
           : reviews.fold<double>(0.0, (sum, review) => sum + review.rating) /
-              reviews.length;
+                reviews.length;
       title = 'Dish Reviews';
     } else if (widget.chefId != null) {
-      reviews =
-          allReviews.where((review) => review.chefId == widget.chefId).toList();
+      reviews = allReviews
+          .where((review) => review.chefId == widget.chefId)
+          .toList();
       rating = reviews.isEmpty
           ? 0.0
           : reviews.fold<double>(0.0, (sum, review) => sum + review.rating) /
-              reviews.length;
+                reviews.length;
       title = 'Kitchen Reviews';
     } else {
       reviews = [];
@@ -231,7 +233,9 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
                                 ),
                               ),
                               Text(
-                                DateFormat('MMM d, yyyy').format(review.createdAt),
+                                DateFormat(
+                                  'MMM d, yyyy',
+                                ).format(review.createdAt),
                                 style: TextStyle(
                                   color: theme.colorScheme.onSurface.withValues(
                                     alpha: 0.4,
