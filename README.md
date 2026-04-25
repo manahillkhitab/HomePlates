@@ -127,6 +127,21 @@ flutter test
 * Strictly scoped `TypeID` registries for local Hive databases to ensure schema integrity across updates.
 * GDPR compliant data handling protocols in synchronization services.
 
+
+## 📸 Showcase
+
+<div align="center">
+  <img src="docs/showcase/4_Main_Showcase.png" alt="Showcase" width="800" />
+  <br><br>
+  <table style="width: 100%">
+    <tr>
+      <td align="center"><img src="docs/showcase/1_Customer_Home.png" width="200" /><br><b>Customer App</b></td>
+      <td align="center"><img src="docs/showcase/2_Chef_Dashboard.png" width="200" /><br><b>Chef Dashboard</b></td>
+      <td align="center"><img src="docs/showcase/3_Rider_Tracking.png" width="200" /><br><b>Rider Tracking</b></td>
+    </tr>
+  </table>
+</div>
+
 ---
 <div align="center">
   <p>Built with ❤️ for the love of homemade food.</p>
